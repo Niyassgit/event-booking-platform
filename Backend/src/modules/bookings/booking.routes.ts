@@ -1,1 +1,1 @@
-router.post("/",authMiddleWare,bookingController.createBooking);
+// router.post("/",authMiddleWare,bookingController.createBooking);
