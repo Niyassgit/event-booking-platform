@@ -1,6 +1,6 @@
-import { appError } from "./appError";
+import { AppError } from "./appError";
 
-export class notFoundError extends appError {
+export class NotFoundError extends AppError {
   constructor(message = "Resource Not Found") {
     super(message, 404);
   }

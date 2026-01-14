@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { appError } from "../utils/errors";
+import { AppError } from "../utils/errors";
 import { HttpStatusCode } from "../utils/HttpStatusCode";
 import { errorMessages } from "../utils/messages";
 
@@ -10,7 +10,7 @@ export const globalErrorHandler = (
     /* eslint-disable @typescript-eslint/no-unused-vars */
     _next: NextFunction
 ) => {
-    if (err instanceof appError) {
+    if (err instanceof AppError) {
         res.status(err.statusCode).json({ success: false, message: err.message });
     } else {
         res

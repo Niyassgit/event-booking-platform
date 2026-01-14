@@ -1,7 +1,7 @@
-import { appError } from "./appError";
+import { AppError } from "./appError";
 
-export class unautharizedError extends appError {
-  constructor(message = "Unautharized") {
+export class UnauthorizedError extends AppError {
+  constructor(message = "Unauthorized") {
     super(message, 401);
   }
 }

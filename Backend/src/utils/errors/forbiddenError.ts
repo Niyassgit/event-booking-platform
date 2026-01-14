@@ -1,6 +1,6 @@
-import { appError } from "./appError";
+import { AppError } from "./appError";
 
-export class forbiddenError extends appError {
+export class ForbiddenError extends AppError {
   constructor(message = "Access Denied") {
     super(message, 403);
   }

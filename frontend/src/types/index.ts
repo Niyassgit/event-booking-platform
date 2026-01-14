@@ -6,6 +6,7 @@ export interface LoginPayload {
 export interface signupPayLoad {
   email: string;
   name: string;
-  pasword: string;
+  password: string;
+  cpassword: string;
   role: string;
 }

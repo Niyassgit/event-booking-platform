@@ -4,6 +4,7 @@ import type { Role } from "../../utils/constants";
 interface User {
   id: string;
   role: Role;
+  name: string;
   email?: string;
   image?: string;
 }

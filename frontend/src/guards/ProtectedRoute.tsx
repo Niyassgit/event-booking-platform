@@ -10,8 +10,9 @@ interface ProtectedRouteProps {
 }
 const ProtectRoute = ({ children, role }: ProtectedRouteProps) => {
   const { accessToken, user } = useSelector((state: RootState) => state.auth);
-  if (!accessToken || !user || user.role !== role) {
-    return <Navigate to="/auth/login" replace />;
+
+  if (!accessToken || !user) {
+    return <Navigate to="/" replace />;
   }
 
   if (role && user.role !== role) {

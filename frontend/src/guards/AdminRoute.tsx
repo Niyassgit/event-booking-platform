@@ -4,7 +4,7 @@ import ProtectRoute from "./ProtectedRoute";
 import AdminDashboard from "../features/admin/pages/AdminDashboard";
 
 export const adminRoutes: RouteObject = {
-  path: "admin",
+  path: "admin/dashboard",
   element: (
     <ProtectRoute role={Role.ADMIN}>
       <AdminDashboard />

@@ -1,4 +1,4 @@
-export abstract class appError extends Error {
+export abstract class AppError extends Error {
   public readonly statusCode: number;
   public readonly isOperational: boolean;
 

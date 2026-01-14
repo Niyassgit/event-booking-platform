@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { IAuthRepository } from "./interfaces/IAuthRepository";
 import { env } from "../../config/env";
 import { errorMessages } from "../../utils/messages";
-import { badRequestError } from "../../utils/errors";
+import { BadRequestError } from "../../utils/errors";
 import { LoginUserDTO, RegisterUserDTO } from "./auth.types";
 
 export class AuthService {
@@ -17,7 +17,7 @@ export class AuthService {
     const { name, email, password } = data;
     const existingUser = await this.authRepository.findUserByEmail(email);
     if (existingUser) {
-      throw new badRequestError(errorMessages.USER_EXIST);
+      throw new BadRequestError(errorMessages.USER_EXIST);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -36,14 +36,16 @@ export class AuthService {
   async login(data: LoginUserDTO) {
     const { email, password } = data;
     const user = await this.authRepository.findUserByEmail(email);
+    
     if (!user) {
-      throw new badRequestError(errorMessages.USER_NOT_FOUND);
+      throw new BadRequestError(errorMessages.USER_NOT_FOUND);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordValid)
-      throw new badRequestError(errorMessages.INVALID_EMAIL);
+    if (!isPasswordValid) {
+      throw new BadRequestError(errorMessages.INVALID_EMAIL);
+    }
 
     const token = jwt.sign(
       { userId: user.id, role: user.role },
