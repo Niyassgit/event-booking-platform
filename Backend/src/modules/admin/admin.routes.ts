@@ -4,6 +4,9 @@ import { AdminController } from "./admin.controller";
 import { AdminService } from "./admin.service";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { validate } from "../../middlewares/validate.middleware";
+import { authenticate } from "../../middlewares/auth.middleware";
+import { authorize } from "../../middlewares/role.middleware";
+import { Role } from "@prisma/client";
 import { createServiceSchema, updateServiceSchema, serviceIdSchema } from "./admin.schema";
 
 const adminRoutes = Router();
@@ -11,6 +14,10 @@ const adminRoutes = Router();
 const adminRepository = new AdminRepository();
 const adminService = new AdminService(adminRepository);
 const adminController = new AdminController(adminService);
+
+// Apply authentication and authorization middleware to all admin routes
+adminRoutes.use(authenticate);
+adminRoutes.use(authorize(Role.ADMIN));
 
 // User routes
 adminRoutes.get(

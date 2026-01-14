@@ -5,6 +5,11 @@ export const errorMessages = {
   UNEXPECTED_ERROR: "Unexpected Error",
   IINTERNAL_SERVER_ERROR: "Internal Server Error",
   VALIDATION_FAILED: "Validation failed",
+  NO_TOKEN_PROVIDED: "No token provided",
+  INVALID_TOKEN: "Invalid token",
+  TOKEN_EXPIRED: "Token expired",
+  USER_NOT_AUTHENTICATED: "User not authenticated",
+  PERMISSION_DENIED: "You don't have permission to access this resource",
 };
 
 export const successMessages = {
