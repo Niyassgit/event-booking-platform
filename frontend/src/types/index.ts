@@ -18,6 +18,7 @@ export interface Service {
   pricePerDay: number;
   description: string;
   location: string;
+  contactDetails: string;
   availableFrom: string;
   availableTo: string;
 }

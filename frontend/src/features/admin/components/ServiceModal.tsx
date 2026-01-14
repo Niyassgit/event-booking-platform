@@ -18,6 +18,7 @@ const ServiceModal = ({ isOpen, onClose, onSubmit, editingService }: ServiceModa
         pricePerDay: 0,
         description: "",
         location: "",
+        contactDetails: "",
         availableFrom: "",
         availableTo: "",
     });
@@ -32,6 +33,7 @@ const ServiceModal = ({ isOpen, onClose, onSubmit, editingService }: ServiceModa
                 pricePerDay: 0,
                 description: "",
                 location: "",
+                contactDetails: "",
                 availableFrom: "",
                 availableTo: "",
             });
@@ -110,6 +112,18 @@ const ServiceModal = ({ isOpen, onClose, onSubmit, editingService }: ServiceModa
                                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                 className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
                                 placeholder="City, Country"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-300">Contact Details</label>
+                            <input
+                                required
+                                type="text"
+                                value={formData.contactDetails}
+                                onChange={(e) => setFormData({ ...formData, contactDetails: e.target.value })}
+                                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="Phone, Email, etc."
                             />
                         </div>
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../../hooks/redux";
 import { logout } from "../../auth/authSlice";
@@ -6,7 +6,9 @@ import AdminSidebar from "../components/AdminSidebar";
 import ServicesList from "../components/ServicesList";
 import BookingsList from "../components/BookingsList";
 import ServiceModal from "../components/ServiceModal";
+import { getAllServices, createService, updateService, deleteService } from "../services/api";
 import type { Service, Booking } from "../../../types";
+import toast from "react-hot-toast";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -16,30 +18,8 @@ const AdminDashboard = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [editingService, setEditingService] = useState<Service | null>(null);
-
-    // Mock Data
-    const [services, setServices] = useState<Service[]>([
-        {
-            id: "1",
-            title: "Royal Grand Hall",
-            category: "venue",
-            pricePerDay: 50000,
-            description: "A luxurious hall for grand weddings, capacity 1000 guests.",
-            location: "Mumbai, India",
-            availableFrom: "2024-01-01",
-            availableTo: "2024-12-31",
-        },
-        {
-            id: "2",
-            title: "DJ Snake Beats",
-            category: "dj",
-            pricePerDay: 15000,
-            description: "Top rated DJ for party vibes.",
-            location: "Delhi, India",
-            availableFrom: "2024-02-01",
-            availableTo: "2024-11-30",
-        },
-    ]);
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(false);
 
     const [bookings] = useState<Booking[]>([
         {
@@ -53,14 +33,45 @@ const AdminDashboard = () => {
         },
     ]);
 
+    // Fetch services on mount
+    useEffect(() => {
+        fetchServices();
+    }, []);
+
+    const fetchServices = async () => {
+        try {
+            setLoading(true);
+            const response = await getAllServices();
+            if (response.success && response.data) {
+                // Format dates for display
+                const formattedServices = response.data.map((service: any) => ({
+                    ...service,
+                    availableFrom: new Date(service.availableFrom).toISOString().split('T')[0],
+                    availableTo: new Date(service.availableTo).toISOString().split('T')[0],
+                }));
+                setServices(formattedServices);
+            }
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Failed to fetch services");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleLogout = () => {
         dispatch(logout());
         navigate("/");
     };
 
-    const handleDeleteService = (id: string) => {
+    const handleDeleteService = async (id: string) => {
         if (confirm("Are you sure you want to delete this service?")) {
-            setServices(services.filter((s) => s.id !== id));
+            try {
+                await deleteService(id);
+                setServices(services.filter((s) => s.id !== id));
+                toast.success("Service deleted successfully");
+            } catch (error: any) {
+                toast.error(error?.response?.data?.message || "Failed to delete service");
+            }
         }
     };
 
@@ -74,18 +85,39 @@ const AdminDashboard = () => {
         setIsModalOpen(true);
     };
 
-    const handleModalSubmit = (data: Partial<Service>) => {
-        if (editingService) {
-            // Update logic (mock)
-            setServices((prev) =>
-                prev.map((s) => (s.id === editingService.id ? { ...s, ...data } as Service : s))
-            );
-        } else {
-            // Create logic (mock)
-            const newService = { ...data, id: Date.now().toString() } as Service;
-            setServices((prev) => [...prev, newService]);
+    const handleModalSubmit = async (data: Partial<Service>) => {
+        try {
+            if (editingService) {
+                // Update service
+                const response = await updateService(editingService.id, data);
+                if (response.success && response.data) {
+                    const updatedService = {
+                        ...response.data,
+                        availableFrom: new Date(response.data.availableFrom).toISOString().split('T')[0],
+                        availableTo: new Date(response.data.availableTo).toISOString().split('T')[0],
+                    };
+                    setServices((prev) =>
+                        prev.map((s) => (s.id === editingService.id ? updatedService : s))
+                    );
+                    toast.success("Service updated successfully");
+                }
+            } else {
+                // Create service
+                const response = await createService(data as Omit<Service, "id">);
+                if (response.success && response.data) {
+                    const newService = {
+                        ...response.data,
+                        availableFrom: new Date(response.data.availableFrom).toISOString().split('T')[0],
+                        availableTo: new Date(response.data.availableTo).toISOString().split('T')[0],
+                    };
+                    setServices((prev) => [...prev, newService]);
+                    toast.success("Service created successfully");
+                }
+            }
+            setIsModalOpen(false);
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Failed to save service");
         }
-        setIsModalOpen(false);
     };
 
     return (
@@ -111,16 +143,22 @@ const AdminDashboard = () => {
 
                 <div className="p-8">
                     {activeTab === "services" && (
-                        <ServicesList
-                            services={services}
-                            searchTerm={searchTerm}
-                            setSearchTerm={setSearchTerm}
-                            onEdit={handleEditClick}
-                            onDelete={handleDeleteService}
-                            onAddNew={handleAddNewClick}
-                            currentPage={currentPage}
-                            setCurrentPage={setCurrentPage}
-                        />
+                        loading ? (
+                            <div className="flex items-center justify-center h-64">
+                                <div className="text-slate-400">Loading services...</div>
+                            </div>
+                        ) : (
+                            <ServicesList
+                                services={services}
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                                onEdit={handleEditClick}
+                                onDelete={handleDeleteService}
+                                onAddNew={handleAddNewClick}
+                                currentPage={currentPage}
+                                setCurrentPage={setCurrentPage}
+                            />
+                        )
                     )}
 
                     {activeTab === "bookings" && <BookingsList bookings={bookings} />}

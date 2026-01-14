@@ -20,16 +20,17 @@ model User {
 }
 
 model Service {
-  id            String    @id @default(uuid())
-  title         String
-  category      String
-  pricePerDay   Float
-  description   String
-  location      String
-  availableFrom DateTime
-  availableTo   DateTime
-  bookings      Booking[]
-  createdAt     DateTime  @default(now())
+  id             String    @id @default(uuid())
+  title          String
+  category       String
+  pricePerDay    Float
+  description    String
+  location       String
+  contactDetails String
+  availableFrom  DateTime
+  availableTo    DateTime
+  bookings       Booking[]
+  createdAt      DateTime  @default(now())
 }
 
 model Booking {
