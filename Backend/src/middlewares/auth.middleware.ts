@@ -28,7 +28,7 @@ export const authenticate = (
       throw new UnauthorizedError(errorMessages.NO_TOKEN_PROVIDED);
     }
 
-    const token = authHeader.substring(7); // Remove "Bearer " prefix
+    const token = authHeader.substring(7);
 
     if (!token) {
       throw new UnauthorizedError(errorMessages.NO_TOKEN_PROVIDED);
@@ -39,7 +39,6 @@ export const authenticate = (
       role: string;
     };
 
-    // Attach user info to request object
     req.user = {
       userId: decoded.userId,
       role: decoded.role,

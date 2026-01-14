@@ -5,6 +5,7 @@ import cors from "cors";
 import { env } from "./config/env";
 import morgan from "morgan";
 import { globalErrorHandler } from "./middlewares/error.middleware";
+import userRoutes from "./modules/users/user.route";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/user", userRoutes);
 
 // Error handler middleware (must be last)
 app.use(globalErrorHandler);
