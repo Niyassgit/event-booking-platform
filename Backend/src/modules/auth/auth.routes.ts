@@ -6,7 +6,7 @@ import { loginSchema, registerSchema } from "./auth.schema";
 const authRoutes = Router();
 const authController = new AuthController();
 
-authRoutes.post("/register", validate(registerSchema), authController.register);
+authRoutes.post("/signup", validate(registerSchema), authController.register);
 
 authRoutes.post("/login", validate(loginSchema), authController.login);
 
