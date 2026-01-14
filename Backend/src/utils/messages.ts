@@ -11,3 +11,7 @@ export const successMessages = {
   LOGED_IN: "Login successful",
   REGISTER_SUCCESSS: "User registered successfully",
 };
+
+export const Message={
+  NO_USER:"Sorry the user you looking for is not found!"
+}
