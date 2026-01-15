@@ -55,4 +55,8 @@ export class AdminService {
     }
     await this.adminRepository.deleteService(id);
   }
+
+  async getAllBookings(filters: any) {
+    return await this.adminRepository.getAllBookings(filters);
+  }
 }

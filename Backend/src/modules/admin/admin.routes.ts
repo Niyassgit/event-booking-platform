@@ -53,4 +53,9 @@ adminRoutes.delete(
   asyncHandler((req, res) => adminController.deleteService(req, res))
 );
 
+adminRoutes.get(
+  "/bookings",
+  asyncHandler((req, res) => adminController.getAllBookings(req, res))
+);
+
 export default adminRoutes;

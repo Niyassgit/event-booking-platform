@@ -4,7 +4,7 @@ import { AdminService } from "./admin.service";
 import { CreateServiceDTO, UpdateServiceDTO } from "./admin.types";
 
 export class AdminController {
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService) { }
 
   async findUsers(req: Request, res: Response) {
     const data = await this.adminService.listAllUsers();
@@ -31,13 +31,13 @@ export class AdminController {
   async createService(req: Request, res: Response) {
     const serviceData: CreateServiceDTO = req.body;
     // Handle both date strings (YYYY-MM-DD) and datetime strings
-    const availableFrom = serviceData.availableFrom.includes('T') 
-      ? new Date(serviceData.availableFrom) 
+    const availableFrom = serviceData.availableFrom.includes('T')
+      ? new Date(serviceData.availableFrom)
       : new Date(serviceData.availableFrom + 'T00:00:00');
     const availableTo = serviceData.availableTo.includes('T')
       ? new Date(serviceData.availableTo)
       : new Date(serviceData.availableTo + 'T23:59:59');
-    
+
     const data = await this.adminService.createService({
       ...serviceData,
       availableFrom,
@@ -50,7 +50,7 @@ export class AdminController {
     const { serviceId } = req.params;
     const serviceData: UpdateServiceDTO = req.body;
     const updateData: any = { ...serviceData };
-    
+
     if (serviceData.availableFrom) {
       updateData.availableFrom = serviceData.availableFrom.includes('T')
         ? new Date(serviceData.availableFrom)
@@ -61,7 +61,7 @@ export class AdminController {
         ? new Date(serviceData.availableTo)
         : new Date(serviceData.availableTo + 'T23:59:59');
     }
-    
+
     const data = await this.adminService.updateService(serviceId as string, updateData);
     res.status(HttpStatusCode.OK).json({ success: true, data });
   }
@@ -70,5 +70,11 @@ export class AdminController {
     const { serviceId } = req.params;
     await this.adminService.deleteService(serviceId as string);
     res.status(HttpStatusCode.OK).json({ success: true, message: "Service deleted successfully" });
+  }
+
+  async getAllBookings(req: Request, res: Response) {
+    const filters = req.query;
+    const data = await this.adminService.getAllBookings(filters);
+    res.status(HttpStatusCode.OK).json({ success: true, data });
   }
 }

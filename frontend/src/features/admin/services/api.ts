@@ -27,3 +27,12 @@ export const deleteService = async (serviceId: string) => {
   return res.data;
 };
 
+export const getAllBookings = async (filters: { category?: string; date?: string }) => {
+  const params = new URLSearchParams();
+  if (filters.category && filters.category !== 'All') params.append('category', filters.category);
+  if (filters.date) params.append('date', filters.date);
+
+  const res = await api.get(`${AdminEndpoints.BOOKINGS}?${params.toString()}`);
+  return res.data;
+};
+
