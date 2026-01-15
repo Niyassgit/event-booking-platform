@@ -70,6 +70,7 @@ const ServiceDetailsModal = ({ service, isOpen, onClose, onConfirmBooking }: Ser
                                 className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500"
                                 value={bookingDate}
                                 onChange={(e) => setBookingDate(e.target.value)}
+                                style={{ colorScheme: "dark" }}
                             />
                         </div>
 

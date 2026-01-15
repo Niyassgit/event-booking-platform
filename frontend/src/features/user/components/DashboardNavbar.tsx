@@ -2,12 +2,15 @@ import { Star, LogOut } from "lucide-react";
 
 interface DashboardNavbarProps {
     user: { name?: string; role?: string } | null;
-    activeTab: "services" | "bookings";
-    setActiveTab: (tab: "services" | "bookings") => void;
+    activePage: "services" | "bookings";
     onLogout: () => void;
 }
 
-const DashboardNavbar = ({ user, activeTab, setActiveTab, onLogout }: DashboardNavbarProps) => {
+import { useNavigate } from "react-router-dom";
+
+const DashboardNavbar = ({ user, activePage, onLogout }: DashboardNavbarProps) => {
+    const navigate = useNavigate();
+
     return (
         <nav className="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-lg border-b border-slate-700/50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,14 +26,14 @@ const DashboardNavbar = ({ user, activeTab, setActiveTab, onLogout }: DashboardN
 
                     <div className="hidden md:flex items-center space-x-8">
                         <button
-                            onClick={() => setActiveTab("services")}
-                            className={`text-sm font-medium transition-colors ${activeTab === 'services' ? 'text-indigo-400' : 'text-slate-400 hover:text-indigo-300'}`}
+                            onClick={() => navigate("/user/dashboard")}
+                            className={`text-sm font-medium transition-colors ${activePage === 'services' ? 'text-indigo-400' : 'text-slate-400 hover:text-indigo-300'}`}
                         >
                             Browse Services
                         </button>
                         <button
-                            onClick={() => setActiveTab("bookings")}
-                            className={`text-sm font-medium transition-colors ${activeTab === 'bookings' ? 'text-indigo-400' : 'text-slate-400 hover:text-indigo-300'}`}
+                            onClick={() => navigate("/user/bookings")}
+                            className={`text-sm font-medium transition-colors ${activePage === 'bookings' ? 'text-indigo-400' : 'text-slate-400 hover:text-indigo-300'}`}
                         >
                             My Bookings
                         </button>
