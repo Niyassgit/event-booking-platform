@@ -36,7 +36,7 @@ export class AuthService {
   async login(data: LoginUserDTO) {
     const { email, password } = data;
     const user = await this.authRepository.findUserByEmail(email);
-    
+
     if (!user) {
       throw new BadRequestError(errorMessages.USER_NOT_FOUND);
     }
@@ -57,6 +57,7 @@ export class AuthService {
       token,
       user: {
         id: user.id,
+        name: user.name,
         email: user.email,
         role: user.role,
       },
