@@ -1,107 +1,146 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../auth/authSlice";
 import type { RootState } from "../../../app/store";
-import { SERVICES, MOCK_BOOKINGS, type Service } from "../data/mockData";
+import type { Service, Booking } from "../types";
+import {
+  fetchServices,
+  fetchUserBookings,
+  createBooking,
+} from "../services/userApi";
 import DashboardNavbar from "../components/DashboardNavbar";
 import ServicesView from "../components/ServicesView";
 import BookingsView from "../components/BookingsView";
 import ServiceDetailsModal from "../components/ServiceDetailsModal";
+import toast from "react-hot-toast";
+import Footer from "../../auth/pages/Footer";
 
 const UserDashboard = () => {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const user = useSelector((state: RootState) => state.auth.user);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.user);
 
-    const [activeTab, setActiveTab] = useState<"services" | "bookings">("services");
-    const [selectedService, setSelectedService] = useState<Service | null>(null);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filterCategory, setFilterCategory] = useState("All");
-    const [filterLocation, setFilterLocation] = useState("");
-    const [filterPriceRange, setFilterPriceRange] = useState<[number, number]>([0, 10000]);
-    const [bookings, setBookings] = useState(MOCK_BOOKINGS);
+  const [activeTab, setActiveTab] = useState<"services" | "bookings">(
+    "services"
+  );
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [filterLocation, setFilterLocation] = useState("");
+  const [filterPriceRange, setFilterPriceRange] = useState<[number, number]>([
+    0, 100000,
+  ]);
 
-    const handleLogout = () => {
-        dispatch(logout());
-        navigate("/");
-    };
+  const [services, setServices] = useState<Service[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
-    const filteredServices = SERVICES.filter(service => {
-        const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            service.description.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = filterCategory === "All" || service.category === filterCategory;
-        const matchesLocation = service.location.toLowerCase().includes(filterLocation.toLowerCase());
-        const matchesPrice = service.price >= filterPriceRange[0] && service.price <= filterPriceRange[1];
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
+  };
 
-        return matchesSearch && matchesCategory && matchesLocation && matchesPrice;
-    });
-
-    const handleConfirmBooking = (service: Service, date: string) => {
-        const newBooking = {
-            id: `b${Date.now()}`,
-            serviceName: service.name,
-            date: date,
-            status: "pending",
-            price: service.price,
-            image: service.image
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const filters = {
+          search: searchTerm,
+          category: filterCategory,
+          location: filterLocation,
+          minPrice: filterPriceRange[0],
+          maxPrice: filterPriceRange[1],
         };
+        const data = await fetchServices(filters);
+        setServices(data);
+      } catch (error) {
+        console.error("Failed to load services", error);
+        toast.error("Failed to load services");
+      }
+    };
+    loadServices();
+  }, [searchTerm, filterCategory, filterLocation, filterPriceRange]);
 
-        setBookings([newBooking, ...bookings]);
-        alert(`Booking confirmed for ${service.name} on ${date}!`);
-        setSelectedService(null);
-        setActiveTab("bookings");
+  useEffect(() => {
+    const loadBookings = async () => {
+      try {
+        const data = await fetchUserBookings();
+        setBookings(data);
+      } catch (error) {
+        console.error("Failed to load bookings", error);
+      }
     };
 
-    return (
-        <div className="min-h-screen bg-[#0f172a] text-slate-200 font-sans selection:bg-indigo-500/30">
-            <DashboardNavbar
-                user={user}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                onLogout={handleLogout}
-            />
+    if (activeTab === "bookings") {
+      loadBookings();
+    }
+  }, [activeTab]);
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <header className="mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">
-                        {activeTab === 'services' ? 'Find Your Perfect Service' : 'Your Bookings'}
-                    </h1>
-                    <p className="text-slate-400 max-w-2xl">
-                        {activeTab === 'services'
-                            ? 'Discover top-rated venues, caterers, and photographers for your next big event.'
-                            : 'Manage your past and upcoming event reservations.'}
-                    </p>
-                </header>
+  const handleConfirmBooking = async (service: Service, date: string) => {
+    try {
+      await createBooking(service.id, date);
+      toast.success(`Booking confirmed for ${service.name} on ${date}!`);
+      setSelectedService(null);
+      setActiveTab("bookings");
+      // loadBookings will be called by useEffect when tab changes
+    } catch (error) {
+      toast.error("Booking failed. Please try again.");
+      console.error(error);
+    }
+  };
 
-                {activeTab === 'services' && (
-                    <ServicesView
-                        filteredServices={filteredServices}
-                        onBook={setSelectedService}
-                        searchTerm={searchTerm}
-                        setSearchTerm={setSearchTerm}
-                        filterCategory={filterCategory}
-                        setFilterCategory={setFilterCategory}
-                        filterLocation={filterLocation}
-                        setFilterLocation={setFilterLocation}
-                        filterPriceRange={filterPriceRange}
-                        setFilterPriceRange={setFilterPriceRange}
-                    />
-                )}
+  return (
+    <div className="min-h-screen bg-[#0f172a] text-slate-200 font-sans selection:bg-indigo-500/30">
+      <DashboardNavbar
+        user={user}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onLogout={handleLogout}
+      />
 
-                {activeTab === 'bookings' && (
-                    <BookingsView bookings={bookings} />
-                )}
-            </main>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            {activeTab === "services"
+              ? "Find Your Perfect Service"
+              : "Your Bookings"}
+          </h1>
+          <p className="text-slate-400 max-w-2xl">
+            {activeTab === "services"
+              ? "Discover top-rated venues, caterers, and photographers for your next big event."
+              : "Manage your past and upcoming event reservations."}
+          </p>
+        </header>
 
-            <ServiceDetailsModal
-                service={selectedService}
-                isOpen={!!selectedService}
-                onClose={() => setSelectedService(null)}
-                onConfirmBooking={handleConfirmBooking}
-            />
-        </div>
-    );
+        {activeTab === "services" && (
+          <ServicesView
+            filteredServices={services}
+            onBook={setSelectedService}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            filterCategory={filterCategory}
+            setFilterCategory={setFilterCategory}
+            filterLocation={filterLocation}
+            setFilterLocation={setFilterLocation}
+            filterPriceRange={filterPriceRange}
+            setFilterPriceRange={setFilterPriceRange}
+          />
+        )}
+
+        {activeTab === "bookings" && <BookingsView bookings={bookings} />}
+      </main>
+
+      <ServiceDetailsModal
+        service={selectedService}
+        isOpen={!!selectedService}
+        onClose={() => setSelectedService(null)}
+        onConfirmBooking={handleConfirmBooking}
+      />
+
+      <div className="mt-10">
+        <Footer />
+      </div>
+    </div>
+  );
 };
 
 export default UserDashboard;

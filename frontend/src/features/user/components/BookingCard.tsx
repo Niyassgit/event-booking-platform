@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Calendar } from "lucide-react";
-import { type Booking } from "../data/mockData";
+import type { Booking } from "../types";
 
 interface BookingCardProps {
     booking: Booking;

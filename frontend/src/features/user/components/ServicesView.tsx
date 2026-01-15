@@ -2,7 +2,7 @@ import { AnimatePresence } from "framer-motion";
 import { Search } from "lucide-react";
 import ServiceCard from "./ServiceCard";
 import ServiceFilters from "./ServiceFilters";
-import { type Service } from "../data/mockData";
+import type { Service } from "../types";
 
 interface ServicesViewProps {
     filteredServices: Service[];

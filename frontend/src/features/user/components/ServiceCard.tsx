@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Star, MapPin } from "lucide-react";
-import { type Service } from "../data/mockData";
+import type { Service } from "../types";
 
 interface ServiceCardProps {
     service: Service;

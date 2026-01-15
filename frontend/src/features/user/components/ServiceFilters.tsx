@@ -1,5 +1,5 @@
 import { Search, MapPin } from "lucide-react";
-import { CATEGORIES } from "../data/mockData";
+import { CATEGORIES } from "../types";
 
 interface ServiceFiltersProps {
     searchTerm: string;
@@ -59,7 +59,7 @@ const ServiceFilters = ({
                     <input
                         type="range"
                         min="0"
-                        max="10000"
+                        max="100000"
                         step="100"
                         value={filterPriceRange[1]}
                         onChange={(e) => setFilterPriceRange([0, parseInt(e.target.value)])}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MapPin, Star, Briefcase } from "lucide-react";
 import Modal from "./Modal";
-import { type Service } from "../data/mockData";
+import type { Service } from "../types";
 
 interface ServiceDetailsModalProps {
     service: Service | null;

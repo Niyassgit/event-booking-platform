@@ -1,6 +1,6 @@
 import { Clock } from "lucide-react";
 import BookingCard from "./BookingCard";
-import { type Booking } from "../data/mockData";
+import type { Booking } from "../types";
 
 interface BookingsViewProps {
     bookings: Booking[];
