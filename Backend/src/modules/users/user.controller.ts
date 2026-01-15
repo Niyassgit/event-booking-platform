@@ -11,6 +11,12 @@ export class UserController {
     return res.status(HttpStatusCode.OK).json({ success: true, data });
   }
 
+  async getServiceById(req: Request, res: Response) {
+    const { serviceId } = req.params;
+    const data = await this.userService.getServiceById(serviceId as string);
+    return res.status(HttpStatusCode.OK).json({ success: true, data });
+  }
+
   async bookService(req: Request, res: Response) {
     const { serviceId } = req.params;
     const userId = req.user?.userId;

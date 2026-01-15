@@ -10,7 +10,10 @@ export interface Service {
     rating: number;
     image: string;
     capacity: string;
-    availableDates: string[];
+    availableDates?: string[]; // Deprecated or kept for listing explicit dates
+    availableFrom?: string;
+    availableTo?: string;
+    bookedDates?: string[];
 }
 
 export interface Booking {

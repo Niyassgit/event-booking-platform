@@ -17,6 +17,12 @@ userRoutes.get(
   asyncHandler((req, res) => userController.getAllServices(req, res))
 );
 
+userRoutes.get(
+  "/service/:serviceId",
+  authenticate,
+  asyncHandler((req, res) => userController.getServiceById(req, res))
+);
+
 userRoutes.post(
   "/service/:serviceId",
   authenticate,

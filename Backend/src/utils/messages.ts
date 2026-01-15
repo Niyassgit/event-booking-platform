@@ -12,6 +12,8 @@ export const errorMessages = {
   PERMISSION_DENIED: "You don't have permission to access this resource",
   SERVICE_NOT_FOIUND: "Service you have looking for is not found!",
   BOOKING_FAILED: "Booking failed",
+  DATE_ALREADY_BOOKED: "Selected dates are already booked",
+  DATE_OUT_OF_RANGE: "Selected dates are outside the service availability range",
 };
 
 export const successMessages = {

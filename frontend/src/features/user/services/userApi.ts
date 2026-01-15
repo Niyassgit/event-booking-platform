@@ -48,6 +48,9 @@ export const fetchServices = async (
             description: string;
             pricePerDay: number;
             location: string;
+            availableFrom?: string;
+            availableTo?: string;
+            bookedDates?: string[];
         }) => ({
             id: s.id,
             name: s.title,
@@ -59,8 +62,22 @@ export const fetchServices = async (
             image: getCategoryImage(s.category),
             capacity: "Varies",
             availableDates: [],
+            availableFrom: s.availableFrom,
+            availableTo: s.availableTo,
+            bookedDates: (s.bookedDates || []).map((d: string) => new Date(d).toISOString().split('T')[0]),
         })
     );
+};
+
+const getDatesInRange = (startDate: Date, endDate: Date): string[] => {
+    const dates: string[] = [];
+    const current = new Date(startDate);
+    const end = new Date(endDate);
+    while (current <= end) {
+        dates.push(current.toISOString().split('T')[0]);
+        current.setDate(current.getDate() + 1);
+    }
+    return dates;
 };
 
 export const fetchServiceById = async (
@@ -68,6 +85,12 @@ export const fetchServiceById = async (
 ): Promise<Service> => {
     const response = await api.get(`/user/service/${serviceId}`);
     const s = response.data.data;
+
+    // Flatten all booked ranges into a single array of date strings
+    const bookedDates = (s.bookings || []).flatMap((b: any) =>
+        getDatesInRange(new Date(b.startDate), new Date(b.endDate))
+    );
+
     return {
         id: s.id,
         name: s.title,
@@ -78,7 +101,10 @@ export const fetchServiceById = async (
         rating: 4.8,
         image: getCategoryImage(s.category),
         capacity: "Varies",
-        availableDates: [],
+        availableDates: [], // Use availableFrom/To instead
+        availableFrom: s.availableFrom,
+        availableTo: s.availableTo,
+        bookedDates: bookedDates,
     };
 };
 

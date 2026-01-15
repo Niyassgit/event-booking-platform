@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../../auth/authSlice";
 import type { RootState } from "../../../app/store";
 import type { Service } from "../types";
-import { fetchServices, createBooking } from "../services/userApi";
+import { fetchServices, createBooking, fetchServiceById } from "../services/userApi";
 import DashboardNavbar from "../components/DashboardNavbar";
 import ServicesView from "../components/ServicesView";
 import ServiceDetailsModal from "../components/ServiceDetailsModal";
@@ -86,9 +86,20 @@ const UserDashboard = () => {
             toast.success(`Booking confirmed for ${service.name} on ${date}!`);
             setSelectedService(null);
             navigate("/user/bookings");
-        } catch (error) {
-            toast.error("Booking failed. Please try again.");
+        } catch (error: any) {
+            const msg = error?.response?.data?.message || "Booking failed. Please try again.";
+            toast.error(msg);
             console.error(error);
+        }
+    };
+
+    const handleBookClick = async (s: Service) => {
+        try {
+            const fullDetails = await fetchServiceById(s.id);
+            setSelectedService(fullDetails);
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to load service details");
         }
     };
 
@@ -113,7 +124,7 @@ const UserDashboard = () => {
 
                 <ServicesView
                     filteredServices={services}
-                    onBook={setSelectedService}
+                    onBook={handleBookClick}
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
                     filterCategory={filterCategory}

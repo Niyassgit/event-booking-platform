@@ -47,9 +47,20 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  async getServiceById(serviceId: string): Promise<Service | null> {
+  async getServiceById(serviceId: string): Promise<any | null> {
     return prisma.service.findUnique({
       where: { id: serviceId },
+      include: { bookings: true },
+    });
+  }
+
+  async findOverlappingBookings(serviceId: string, startDate: Date, endDate: Date): Promise<any[]> {
+    return prisma.booking.findMany({
+      where: {
+        serviceId,
+        startDate: { lt: endDate },
+        endDate: { gt: startDate },
+      },
     });
   }
 }

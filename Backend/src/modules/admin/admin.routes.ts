@@ -15,11 +15,10 @@ const adminRepository = new AdminRepository();
 const adminService = new AdminService(adminRepository);
 const adminController = new AdminController(adminService);
 
-// Apply authentication and authorization middleware to all admin routes
 adminRoutes.use(authenticate);
 adminRoutes.use(authorize(Role.ADMIN));
 
-// User routes
+
 adminRoutes.get(
   "/users",
   asyncHandler((req, res) => adminController.findUsers(req, res))
@@ -29,7 +28,6 @@ adminRoutes.get(
   asyncHandler((req, res) => adminController.findUserById(req, res))
 );
 
-// Service routes
 adminRoutes.get(
   "/services",
   asyncHandler((req, res) => adminController.findAllServices(req, res))

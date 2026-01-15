@@ -10,12 +10,26 @@ interface ServiceDetailsModalProps {
     onConfirmBooking: (service: Service, date: string) => void;
 }
 
+import toast from "react-hot-toast";
+
 const ServiceDetailsModal = ({ service, isOpen, onClose, onConfirmBooking }: ServiceDetailsModalProps) => {
     const [bookingDate, setBookingDate] = useState("");
 
     const handleConfirm = () => {
-        if (!bookingDate) return alert("Please select a date");
+        if (!bookingDate) return toast.error("Please select a date");
+
         if (service) {
+            const selected = new Date(bookingDate);
+            const start = service.availableFrom ? new Date(service.availableFrom) : null;
+            const end = service.availableTo ? new Date(service.availableTo) : null;
+
+            if (start && selected < start) return toast.error("Selected date is before availability");
+            if (end && selected > end) return toast.error("Selected date is after availability");
+
+            if (service.bookedDates?.includes(bookingDate)) {
+                return toast.error("This date is already booked");
+            }
+
             onConfirmBooking(service, bookingDate);
         }
     };
@@ -51,13 +65,60 @@ const ServiceDetailsModal = ({ service, isOpen, onClose, onConfirmBooking }: Ser
                             {service.capacity}
                         </p>
 
+
                         <h3 className="text-lg font-semibold text-white mb-3">Availability</h3>
-                        <div className="flex flex-wrap gap-2 mb-6">
-                            {service.availableDates.map(date => (
-                                <span key={date} className="bg-slate-800 text-slate-300 px-3 py-1 rounded-full text-xs border border-slate-700">
-                                    {date}
-                                </span>
-                            ))}
+                        <div className="space-y-4 mb-6 text-slate-400">
+                            {/* Show Availability Range if exists */}
+                            {service.availableFrom && service.availableTo && (
+                                <div>
+                                    <span className="block text-sm text-slate-500 mb-1">Service Period:</span>
+                                    <span className="text-white font-medium bg-slate-800 px-3 py-1 rounded-md border border-slate-700 inline-block">
+                                        {new Date(service.availableFrom).toLocaleDateString()} - {new Date(service.availableTo).toLocaleDateString()}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Show Specific Available Dates if exists */}
+                            {service.availableDates && service.availableDates.length > 0 && (
+                                <div>
+                                    <span className="block text-sm text-slate-500 mb-2">Available Slots (Click to Select):</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {service.availableDates.map(date => (
+                                            <button
+                                                key={date}
+                                                onClick={() => setBookingDate(date)}
+                                                disabled={service.bookedDates?.includes(date)}
+                                                className={`px-3 py-1 rounded-full text-xs border transition-colors ${bookingDate === date
+                                                    ? "bg-emerald-600 text-white border-emerald-500"
+                                                    : service.bookedDates?.includes(date)
+                                                        ? "bg-slate-800/50 text-slate-500 border-slate-700 cursor-not-allowed line-through"
+                                                        : "bg-emerald-900/30 text-emerald-400 border-emerald-800/50 hover:bg-emerald-800/50 cursor-pointer"
+                                                    }`}
+                                            >
+                                                {date}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Show Booked Dates if exists */}
+                            {service.bookedDates && service.bookedDates.length > 0 && (
+                                <div>
+                                    <span className="block text-sm text-slate-500 mb-2">Unavailable (Booked):</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {service.bookedDates.map(date => (
+                                            <span key={date} className="bg-red-900/30 text-red-400 px-3 py-1 rounded-full text-xs border border-red-800/50 line-through">
+                                                {date}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {!service.availableFrom && (!service.availableDates || service.availableDates.length === 0) && (
+                                <span className="text-slate-500 italic">Contact for availability</span>
+                            )}
                         </div>
                     </div>
 
@@ -67,11 +128,19 @@ const ServiceDetailsModal = ({ service, isOpen, onClose, onConfirmBooking }: Ser
                             <label className="block text-sm font-medium text-slate-400 mb-1">Select Date</label>
                             <input
                                 type="date"
-                                className="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500"
+                                className={`w-full bg-slate-950 border rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 ${service.bookedDates?.includes(bookingDate)
+                                        ? "border-red-500 focus:ring-red-500"
+                                        : "border-slate-700"
+                                    }`}
                                 value={bookingDate}
                                 onChange={(e) => setBookingDate(e.target.value)}
+                                min={service.availableFrom ? new Date(service.availableFrom).toISOString().split('T')[0] : undefined}
+                                max={service.availableTo ? new Date(service.availableTo).toISOString().split('T')[0] : undefined}
                                 style={{ colorScheme: "dark" }}
                             />
+                            {service.bookedDates?.includes(bookingDate) && (
+                                <p className="text-red-400 text-xs mt-1">This date is unavailable.</p>
+                            )}
                         </div>
 
                         <div className="flex justify-between items-center mb-6 pt-4 border-t border-slate-700/50">
