@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { UserService } from "./user.service";
+import { IUserService } from "./interfaces/IUserService";
 import { HttpStatusCode } from "../../utils/HttpStatusCode";
 
 export class UserController {
-  constructor(private userService: UserService) { }
+  constructor(private userService: IUserService) { }
 
   async getAllServices(req: Request, res: Response) {
     const filters = req.query;
@@ -20,7 +20,7 @@ export class UserController {
   async bookService(req: Request, res: Response) {
     const { serviceId } = req.params;
     const userId = req.user?.userId;
-    const { date } = req.body; // user dashboard sends 'date' as bookingDate string
+    const { date } = req.body; 
 
     if (!userId) {
       return res.status(HttpStatusCode.UNAUTHORIZED).json({ success: false, message: "User not authenticated" });
