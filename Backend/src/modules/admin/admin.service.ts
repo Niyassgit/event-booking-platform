@@ -1,9 +1,10 @@
 import { IAdminRepository } from "./interfaces/IAdminRepository";
+import { IAdminService } from "./interfaces/IAdminService";
 import { NotFoundError } from "../../utils/errors";
 import { errorMessages } from "../../utils/messages";
 import { Service } from "@prisma/client";
 
-export class AdminService {
+export class AdminService implements IAdminService {
   private adminRepository: IAdminRepository;
 
   constructor(adminRepository: IAdminRepository) {

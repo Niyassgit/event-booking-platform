@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { HttpStatusCode } from "../../utils/HttpStatusCode";
-import { AdminService } from "./admin.service";
+import { IAdminService } from "./interfaces/IAdminService";
 import { CreateServiceDTO, UpdateServiceDTO } from "./admin.types";
 
 export class AdminController {
-  constructor(private adminService: AdminService) { }
+  constructor(private adminService: IAdminService) { }
 
   async findUsers(req: Request, res: Response) {
     const data = await this.adminService.listAllUsers();

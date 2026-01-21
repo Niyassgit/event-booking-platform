@@ -1,12 +1,13 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { IAuthRepository } from "./interfaces/IAuthRepository";
+import { IAuthService } from "./interfaces/IAuthService";
 import { env } from "../../config/env";
 import { errorMessages } from "../../utils/messages";
 import { BadRequestError } from "../../utils/errors";
 import { LoginUserDTO, RegisterUserDTO } from "./auth.types";
 
-export class AuthService {
+export class AuthService implements IAuthService {
   private authRepository: IAuthRepository;
 
   constructor(authRepository: IAuthRepository) {

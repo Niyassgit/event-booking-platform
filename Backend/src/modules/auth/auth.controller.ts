@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { AuthService } from "./auth.service";
+import { IAuthService } from "./interfaces/IAuthService";
 import { HttpStatusCode } from "../../utils/HttpStatusCode";
 import { successMessages } from "../../utils/messages";
 
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: IAuthService) { }
 
   async register(req: Request, res: Response) {
     const { name, email, password } = req.body;
