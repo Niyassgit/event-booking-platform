@@ -11,12 +11,14 @@ const AdminBookings = () => {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(false);
     const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [totalRevenue, setTotalRevenue] = useState(0);
 
-    const fetchBookings = useCallback(async (filters: Record<string, any> = {}) => {
+    const fetchBookings = useCallback(async (filters: Record<string, any> = {}, page: number = 1) => {
         try {
             setLoading(true);
-            const response = await getAllBookings(filters);
+            const response = await getAllBookings({ ...filters, page, limit: 10 });
 
             if (response.success && response.data) {
                 const formattedBookings = response.data.map((b: any) => ({
@@ -30,6 +32,11 @@ const AdminBookings = () => {
                 }));
                 setBookings(formattedBookings);
 
+                if (response.meta) {
+                    setTotalPages(response.meta.totalPages);
+                    setCurrentPage(response.meta.page);
+                }
+
                 const total = formattedBookings.reduce((sum: number, b: any) => sum + (b.totalPrice || 0), 0);
                 setTotalRevenue(total);
             }
@@ -42,11 +49,12 @@ const AdminBookings = () => {
     }, []);
 
     useEffect(() => {
-        fetchBookings(activeFilters);
-    }, [fetchBookings, activeFilters]);
+        fetchBookings(activeFilters, currentPage);
+    }, [fetchBookings, activeFilters, currentPage]);
 
     const handleFilterChange = (filters: any) => {
         setActiveFilters(filters);
+        setCurrentPage(1); // Reset to first page on filter change
     };
 
     return (
@@ -72,7 +80,12 @@ const AdminBookings = () => {
                     <div className="text-slate-400">Loading bookings...</div>
                 </div>
             ) : (
-                <BookingsList bookings={bookings} />
+                <BookingsList
+                    bookings={bookings}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
             )}
         </div>
     );

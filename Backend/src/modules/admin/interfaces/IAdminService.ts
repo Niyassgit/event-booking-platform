@@ -3,10 +3,12 @@ import { UserDto } from "../../auth/dtos/UserDto";
 import { ServiceResponseDto } from "../../users/dtos/ServiceResponse.dto";
 import { BookingDTO } from "../dtos/BookingDTO";
 
+import { PaginatedResponseDto } from "../dtos/PaginatedResponse.dto";
+
 export interface IAdminService {
-  listAllUsers(): Promise<UserDto[]>;
+  listAllUsers(filters?: Record<string, string | undefined>): Promise<PaginatedResponseDto<UserDto>>;
   findUserById(id: string): Promise<UserDto>;
-  listAllServices(filters?: Record<string, string | undefined>): Promise<ServiceResponseDto[]>;
+  listAllServices(filters?: Record<string, string | undefined>): Promise<PaginatedResponseDto<ServiceResponseDto>>;
   findServiceById(id: string): Promise<ServiceResponseDto>;
   createService(
     data: Omit<Service, "id" | "createdAt" | "bookings">,
@@ -16,5 +18,5 @@ export interface IAdminService {
     data: Partial<Omit<Service, "id" | "createdAt" | "bookings">>,
   ): Promise<ServiceResponseDto>;
   deleteService(id: string): Promise<string>;
-  getAllBookings(filters: Record<string, string | undefined>): Promise<BookingDTO[]>;
+  getAllBookings(filters: Record<string, string | undefined>): Promise<PaginatedResponseDto<BookingDTO>>;
 }

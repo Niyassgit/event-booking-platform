@@ -1,10 +1,19 @@
 import type { Booking } from "../../../types";
+import Pagination from "../../../components/common/Pagination";
 
 interface BookingsListProps {
     bookings: Booking[];
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
 }
 
-const BookingsList = ({ bookings }: BookingsListProps) => {
+const BookingsList = ({
+    bookings,
+    currentPage,
+    totalPages,
+    onPageChange
+}: BookingsListProps) => {
     return (
         <div className="space-y-6">
             <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-sm">
@@ -33,10 +42,10 @@ const BookingsList = ({ bookings }: BookingsListProps) => {
                                 <td className="px-6 py-4">
                                     <span
                                         className={`px-2.5 py-1 rounded-full text-xs font-medium border capitalize ${booking.status === "confirmed"
-                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                                : booking.status === "pending"
-                                                    ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                                                    : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                            : booking.status === "pending"
+                                                ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                                                : "bg-rose-500/10 text-rose-400 border-rose-500/20"
                                             }`}
                                     >
                                         {booking.status}
@@ -53,6 +62,12 @@ const BookingsList = ({ bookings }: BookingsListProps) => {
                         )}
                     </tbody>
                 </table>
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
+                />
             </div>
         </div>
     );

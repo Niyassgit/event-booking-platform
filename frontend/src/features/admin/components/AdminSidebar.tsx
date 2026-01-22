@@ -1,9 +1,9 @@
-import { LayoutDashboard, CalendarDays, LogOut } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Users, LogOut } from "lucide-react";
 import favIcon from "../../../../public/favIcon.png";
 
 interface AdminSidebarProps {
-  activeTab: "services" | "bookings";
-  setActiveTab: (tab: "services" | "bookings") => void;
+  activeTab: "services" | "bookings" | "users";
+  setActiveTab: (tab: "services" | "bookings" | "users") => void;
   onLogout: () => void;
 }
 
@@ -31,11 +31,10 @@ const AdminSidebar = ({
       <nav className="flex-1 space-y-2">
         <button
           onClick={() => setActiveTab("services")}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-            activeTab === "services"
-              ? "bg-indigo-500/10 text-indigo-400"
-              : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
-          }`}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "services"
+            ? "bg-indigo-500/10 text-indigo-400"
+            : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+            }`}
         >
           <LayoutDashboard size={20} />
           <span className="font-medium">Services</span>
@@ -43,14 +42,24 @@ const AdminSidebar = ({
 
         <button
           onClick={() => setActiveTab("bookings")}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-            activeTab === "bookings"
-              ? "bg-indigo-500/10 text-indigo-400"
-              : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
-          }`}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "bookings"
+            ? "bg-indigo-500/10 text-indigo-400"
+            : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+            }`}
         >
           <CalendarDays size={20} />
           <span className="font-medium">Bookings</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("users")}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "users"
+            ? "bg-indigo-500/10 text-indigo-400"
+            : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+            }`}
+        >
+          <Users size={20} />
+          <span className="font-medium">Users</span>
         </button>
       </nav>
 

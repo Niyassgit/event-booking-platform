@@ -3,6 +3,7 @@ import { Role } from "../utils/constants";
 import ProtectRoute from "./ProtectedRoute";
 import AdminDashboard from "../features/admin/pages/AdminDashboard";
 import AdminBookings from "../features/admin/pages/AdminBookings";
+import UserManagement from "../features/admin/pages/UserManagement";
 import AdminLayout from "../features/admin/components/AdminLayout";
 import { Navigate } from "react-router-dom";
 
@@ -25,6 +26,10 @@ export const adminRoutes: RouteObject = {
     {
       path: "bookings",
       element: <AdminBookings />,
+    },
+    {
+      path: "users",
+      element: <UserManagement />,
     },
   ],
 };

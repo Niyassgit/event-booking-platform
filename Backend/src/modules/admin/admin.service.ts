@@ -7,6 +7,7 @@ import { UserDto } from "../auth/dtos/UserDto";
 import { AuthMapper } from "../auth/mappers/AuthMapper";
 import { AdminMapper } from "./mappers/AdminMapper";
 import { BookingDTO } from "./dtos/BookingDTO";
+import { PaginatedResponseDto } from "./dtos/PaginatedResponse.dto";
 
 export class AdminService implements IAdminService {
   private adminRepository: IAdminRepository;
@@ -15,9 +16,27 @@ export class AdminService implements IAdminService {
     this.adminRepository = adminRepository;
   }
 
-  async listAllUsers(): Promise<UserDto[]> {
-    const users = await this.adminRepository.findAllUsers();
-    return users.map((user) => AuthMapper.userTODomain(user));
+  private calculatePaginationMeta(total: number, page: number, limit: number) {
+    return {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async listAllUsers(
+    filters?: Record<string, string | undefined>,
+  ): Promise<PaginatedResponseDto<UserDto>> {
+    const page = parseInt(filters?.page || "1");
+    const limit = parseInt(filters?.limit || "10");
+
+    const { data, total } = await this.adminRepository.findAllUsers(filters);
+
+    return {
+      data: data.map((user) => AuthMapper.userTODomain(user)),
+      meta: this.calculatePaginationMeta(total, page, limit),
+    };
   }
 
   async findUserById(id: string) {
@@ -29,8 +48,15 @@ export class AdminService implements IAdminService {
   }
 
   async listAllServices(filters?: Record<string, string | undefined>) {
-    const services = await this.adminRepository.findAllServices(filters);
-    return services.map((service) => AdminMapper.toServiceResponse(service));
+    const page = parseInt(filters?.page || "1");
+    const limit = parseInt(filters?.limit || "10");
+
+    const { data, total } = await this.adminRepository.findAllServices(filters);
+
+    return {
+      data: data.map((service) => AdminMapper.toServiceResponse(service)),
+      meta: this.calculatePaginationMeta(total, page, limit),
+    };
   }
 
   async findServiceById(id: string) {
@@ -63,13 +89,21 @@ export class AdminService implements IAdminService {
     if (!service) {
       throw new NotFoundError("Service not found!");
     }
-    // Assuming deleteService is void or similar, just call it
     await this.adminRepository.deleteService(id);
     return successMessages.SERVICE_DELETE;
   }
 
-  async getAllBookings(filters: Record<string, string | undefined>): Promise<BookingDTO[]> {
-    const bookings = await this.adminRepository.getAllBookings(filters);
-    return bookings.map((booking) => AdminMapper.toBookingDTO(booking));
+  async getAllBookings(
+    filters: Record<string, string | undefined>,
+  ): Promise<PaginatedResponseDto<BookingDTO>> {
+    const page = parseInt(filters?.page || "1");
+    const limit = parseInt(filters?.limit || "10");
+
+    const { data, total } = await this.adminRepository.getAllBookings(filters);
+
+    return {
+      data: data.map((booking) => AdminMapper.toBookingDTO(booking)),
+      meta: this.calculatePaginationMeta(total, page, limit),
+    };
   }
 }

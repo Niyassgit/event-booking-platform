@@ -4,7 +4,6 @@ import type { Service } from "../../../types";
 
 export const getAllServices = async (filters?: Record<string, any>) => {
   const res = await api.get(AdminEndpoints.SERVICES, { params: filters });
-  console.log(res.data.data);
   return res.data;
 };
 
@@ -30,6 +29,11 @@ export const deleteService = async (serviceId: string) => {
 
 export const getAllBookings = async (filters?: Record<string, any>) => {
   const res = await api.get(AdminEndpoints.BOOKINGS, { params: filters });
+  return res.data;
+};
+
+export const getAllUsers = async (filters?: Record<string, any>) => {
+  const res = await api.get(AdminEndpoints.USERS, { params: filters });
   return res.data;
 };
 

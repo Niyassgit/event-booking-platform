@@ -24,7 +24,7 @@ export class AuthService implements IAuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await this.authRepository.createUser({
+    await this.authRepository.createUser({
       name,
       email,
       password: hashedPassword,

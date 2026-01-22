@@ -11,15 +11,16 @@ const CATEGORIES = ["venue", "caterer", "dj", "photographer", "decoration"];
 const AdminDashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [editingService, setEditingService] = useState<Service | null>(null);
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(false);
     const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
 
-    const fetchServices = useCallback(async (filters: Record<string, any> = {}) => {
+    const fetchServices = useCallback(async (filters: Record<string, any> = {}, page: number = 1) => {
         try {
             setLoading(true);
-            const response = await getAllServices(filters);
+            const response = await getAllServices({ ...filters, page, limit: 10 });
             if (response.success && response.data) {
                 const formattedServices = response.data.map((service: any) => ({
                     ...service,
@@ -32,6 +33,10 @@ const AdminDashboard = () => {
                         : '',
                 }));
                 setServices(formattedServices);
+                if (response.meta) {
+                    setTotalPages(response.meta.totalPages);
+                    setCurrentPage(response.meta.page);
+                }
             }
         } catch (error: any) {
             toast.error(error?.response?.data?.message || "Failed to fetch services");
@@ -41,11 +46,12 @@ const AdminDashboard = () => {
     }, []);
 
     useEffect(() => {
-        fetchServices(activeFilters);
-    }, [fetchServices, activeFilters]);
+        fetchServices(activeFilters, currentPage);
+    }, [fetchServices, activeFilters, currentPage]);
 
     const handleFilterChange = (filters: any) => {
         setActiveFilters(filters);
+        setCurrentPage(1); // Reset to first page on filter change
     };
 
     const handleDeleteService = async (id: string) => {
@@ -129,7 +135,8 @@ const AdminDashboard = () => {
                     onDelete={handleDeleteService}
                     onAddNew={handleAddNewClick}
                     currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
                 />
             )}
 

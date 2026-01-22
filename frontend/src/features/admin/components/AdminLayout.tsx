@@ -14,11 +14,16 @@ const AdminLayout = () => {
     };
 
     // Determine active tab based on current path
-    const activeTab = location.pathname.includes("bookings") ? "bookings" : "services";
+    const activeTab = location.pathname.includes("bookings")
+        ? "bookings"
+        : location.pathname.includes("users")
+            ? "users"
+            : "services";
 
-    const handleTabChange = (tab: "services" | "bookings") => {
+    const handleTabChange = (tab: "services" | "bookings" | "users") => {
         if (tab === "services") navigate("/admin/dashboard");
         if (tab === "bookings") navigate("/admin/bookings");
+        if (tab === "users") navigate("/admin/users");
     };
 
     return (

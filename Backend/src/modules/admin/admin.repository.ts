@@ -1,18 +1,47 @@
-import { User, Service } from "@prisma/client";
+import { User, Service, Booking, Prisma } from "@prisma/client";
 import { IAdminRepository } from "./interfaces/IAdminRepository";
 import { prisma } from "../../config/db";
 
 export class AdminRepository implements IAdminRepository {
-  async findAllUsers(): Promise<User[]> {
-    return prisma.user.findMany();
+  async findAllUsers(filters?: Record<string, string | undefined>): Promise<{ data: User[], total: number }> {
+    const { searchTerm } = filters || {};
+    const page = parseInt(filters?.page || '1');
+    const limit = parseInt(filters?.limit || '10');
+    const skip = (page - 1) * limit;
+
+    const query: Prisma.UserWhereInput = {};
+
+    if (searchTerm) {
+      query.OR = [
+        { name: { contains: searchTerm, mode: 'insensitive' } },
+        { email: { contains: searchTerm, mode: 'insensitive' } },
+      ];
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.user.findMany({
+        where: query,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.user.count({ where: query })
+    ]);
+
+    return { data, total };
   }
+
   async findUserById(userId: string): Promise<User | null> {
     return prisma.user.findUnique({ where: { id: userId } });
   }
 
-  async findAllServices(filters?: Record<string, string | undefined>): Promise<Service[]> {
+  async findAllServices(filters?: Record<string, string | undefined>): Promise<{ data: Service[], total: number }> {
     const { category, minPrice, maxPrice, startDate, endDate, searchTerm } = filters || {};
-    const query: any = {};
+    const page = parseInt(filters?.page || '1');
+    const limit = parseInt(filters?.limit || '10');
+    const skip = (page - 1) * limit;
+
+    const query: Prisma.ServiceWhereInput = {};
 
     if (category && category !== 'All') {
       query.category = { equals: category, mode: 'insensitive' };
@@ -38,10 +67,17 @@ export class AdminRepository implements IAdminRepository {
       ];
     }
 
-    return prisma.service.findMany({
-      where: query,
-      orderBy: { createdAt: 'desc' }
-    });
+    const [data, total] = await Promise.all([
+      prisma.service.findMany({
+        where: query,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.service.count({ where: query })
+    ]);
+
+    return { data, total };
   }
 
   async findServiceById(serviceId: string): Promise<Service | null> {
@@ -63,9 +99,13 @@ export class AdminRepository implements IAdminRepository {
     await prisma.service.delete({ where: { id: serviceId } });
   }
 
-  async getAllBookings(filters?: Record<string, string | undefined>): Promise<(import("@prisma/client").Booking & { service: import("@prisma/client").Service, user: import("@prisma/client").User })[]> {
+  async getAllBookings(filters?: Record<string, string | undefined>): Promise<{ data: (Booking & { service: Service, user: User })[], total: number }> {
     const { category, minPrice, maxPrice, startDate, endDate, searchTerm } = filters || {};
-    const query: any = {};
+    const page = parseInt(filters?.page || '1');
+    const limit = parseInt(filters?.limit || '10');
+    const skip = (page - 1) * limit;
+
+    const query: Prisma.BookingWhereInput = {};
 
     if (category && category !== 'All') {
       query.service = {
@@ -95,18 +135,25 @@ export class AdminRepository implements IAdminRepository {
 
     if (searchTerm) {
       query.service = {
-        ...(query.service || {}),
+        ...(query.service as Prisma.ServiceWhereInput || {}),
         title: { contains: searchTerm, mode: 'insensitive' }
       };
     }
 
-    return prisma.booking.findMany({
-      where: query,
-      include: {
-        service: true,
-        user: true
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+    const [data, total] = await Promise.all([
+      prisma.booking.findMany({
+        where: query,
+        include: {
+          service: true,
+          user: true
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.booking.count({ where: query })
+    ]);
+
+    return { data, total };
   }
 }

@@ -1,5 +1,6 @@
-import { Plus, Pencil, Trash2, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, MapPin } from "lucide-react";
 import type { Service } from "../../../types";
+import Pagination from "../../../components/common/Pagination";
 
 interface ServicesListProps {
     services: Service[];
@@ -7,7 +8,8 @@ interface ServicesListProps {
     onDelete: (id: string) => void;
     onAddNew: () => void;
     currentPage: number;
-    setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+    totalPages: number;
+    onPageChange: (page: number) => void;
 }
 
 const ServicesList = ({
@@ -16,7 +18,8 @@ const ServicesList = ({
     onDelete,
     onAddNew,
     currentPage,
-    setCurrentPage,
+    totalPages,
+    onPageChange,
 }: ServicesListProps) => {
     return (
         <div className="space-y-6">
@@ -122,27 +125,11 @@ const ServicesList = ({
                     </table>
                 </div>
 
-                {/* Pagination (Mock) */}
-                <div className="flex items-center justify-between px-6 py-4 border-t border-slate-800 bg-slate-950/30">
-                    <span className="text-sm text-slate-500">
-                        Page {currentPage} of 10
-                    </span>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                            disabled={currentPage === 1}
-                            className="p-1 rounded-md text-slate-400 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronLeft size={20} />
-                        </button>
-                        <button
-                            onClick={() => setCurrentPage((p) => p + 1)}
-                            className="p-1 rounded-md text-slate-400 hover:bg-slate-800 transition-colors"
-                        >
-                            <ChevronRight size={20} />
-                        </button>
-                    </div>
-                </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
+                />
             </div>
         </div>
     );

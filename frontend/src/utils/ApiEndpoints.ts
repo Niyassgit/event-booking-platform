@@ -7,4 +7,5 @@ export const AdminEndpoints = {
   SERVICES: "/admin/services",
   SERVICE: "/admin/service",
   BOOKINGS: "/admin/bookings",
+  USERS: "/admin/users",
 }

@@ -7,8 +7,9 @@ export class AdminController {
   constructor(private adminService: IAdminService) { }
 
   async findUsers(req: Request, res: Response) {
-    const data = await this.adminService.listAllUsers();
-    res.status(HttpStatusCode.OK).json({ success: true, data });
+    const filters = req.query as Record<string, string | undefined>;
+    const data = await this.adminService.listAllUsers(filters);
+    res.status(HttpStatusCode.OK).json({ success: true, ...data });
   }
 
   async findUserById(req: Request, res: Response) {
@@ -20,7 +21,7 @@ export class AdminController {
   async findAllServices(req: Request, res: Response) {
     const filters = req.query as Record<string, string | undefined>;
     const data = await this.adminService.listAllServices(filters);
-    res.status(HttpStatusCode.OK).json({ success: true, data });
+    res.status(HttpStatusCode.OK).json({ success: true, ...data });
   }
 
   async findServiceById(req: Request, res: Response) {
@@ -57,6 +58,6 @@ export class AdminController {
   async getAllBookings(req: Request, res: Response) {
     const filters = req.query as Record<string, string | undefined>;
     const data = await this.adminService.getAllBookings(filters);
-    res.status(HttpStatusCode.OK).json({ success: true, data });
+    res.status(HttpStatusCode.OK).json({ success: true, ...data });
   }
 }
