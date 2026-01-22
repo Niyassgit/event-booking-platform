@@ -145,7 +145,7 @@ const ServiceDetailsModal = ({ service, isOpen, onClose, onConfirmBooking }: Ser
 
                         <div className="flex justify-between items-center mb-6 pt-4 border-t border-slate-700/50">
                             <span className="text-slate-400">Total Price</span>
-                            <span className="text-2xl font-bold text-white">${service.price}</span>
+                            <span className="text-2xl font-bold text-white">₹{service.price}</span>
                         </div>
 
                         <button

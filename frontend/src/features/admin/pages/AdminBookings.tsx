@@ -1,30 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import BookingsList from "../components/BookingsList";
+import FilterBar from "../../../components/common/FilterBar";
 import { getAllBookings } from "../services/api";
 import type { Booking } from "../../../types";
 import toast from "react-hot-toast";
-import { Filter } from "lucide-react";
 
-export const CATEGORIES = ["All", "Venue", "Caterer", "Photographer", "DJ", "Decoration"];
+const CATEGORIES = ["venue", "caterer", "dj", "photographer", "decoration"];
 
 const AdminBookings = () => {
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(false);
-
-    // Filters
-    const [category, setCategory] = useState("All");
-    const [date, setDate] = useState("");
-
-    // Totals
+    const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
     const [totalRevenue, setTotalRevenue] = useState(0);
 
-    const fetchBookings = async () => {
+    const fetchBookings = useCallback(async (filters: Record<string, any> = {}) => {
         try {
             setLoading(true);
-            const response = await getAllBookings({
-                category: category !== "All" ? category : undefined,
-                date: date || undefined
-            });
+            const response = await getAllBookings(filters);
 
             if (response.success && response.data) {
                 const formattedBookings = response.data.map((b: any) => ({
@@ -34,11 +26,10 @@ const AdminBookings = () => {
                     startDate: new Date(b.startDate).toISOString().split('T')[0],
                     endDate: new Date(b.endDate).toISOString().split('T')[0],
                     totalPrice: b.totalPrice,
-                    status: "confirmed", // Default status as per simplified model
+                    status: "confirmed",
                 }));
                 setBookings(formattedBookings);
 
-                // Calculate total revenue
                 const total = formattedBookings.reduce((sum: number, b: any) => sum + (b.totalPrice || 0), 0);
                 setTotalRevenue(total);
             }
@@ -48,11 +39,15 @@ const AdminBookings = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
-        fetchBookings();
-    }, [category, date]);
+        fetchBookings(activeFilters);
+    }, [fetchBookings, activeFilters]);
+
+    const handleFilterChange = (filters: any) => {
+        setActiveFilters(filters);
+    };
 
     return (
         <div className="p-8 space-y-8">
@@ -70,40 +65,7 @@ const AdminBookings = () => {
                 </div>
             </header>
 
-            {/* Filters */}
-            <div className="bg-slate-900/50 border border-slate-800 p-4 rounded-xl flex flex-wrap gap-4 items-center">
-                <div className="flex items-center gap-2 text-slate-400 mr-2">
-                    <Filter className="w-4 h-4" />
-                    <span className="text-sm font-medium">Filters:</span>
-                </div>
-
-                <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="bg-slate-950 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                >
-                    {CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                </select>
-
-                <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="bg-slate-950 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                    style={{ colorScheme: "dark" }}
-                />
-
-                {(category !== "All" || date) && (
-                    <button
-                        onClick={() => { setCategory("All"); setDate(""); }}
-                        className="text-sm text-indigo-400 hover:text-indigo-300 ml-auto"
-                    >
-                        Clear Filters
-                    </button>
-                )}
-            </div>
+            <FilterBar onFilter={handleFilterChange} categories={CATEGORIES} />
 
             {loading ? (
                 <div className="flex items-center justify-center h-64">

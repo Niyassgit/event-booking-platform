@@ -1,10 +1,8 @@
-import { Search, Filter, Plus, Pencil, Trash2, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Service } from "../../../types";
 
 interface ServicesListProps {
     services: Service[];
-    searchTerm: string;
-    setSearchTerm: (term: string) => void;
     onEdit: (service: Service) => void;
     onDelete: (id: string) => void;
     onAddNew: () => void;
@@ -14,38 +12,24 @@ interface ServicesListProps {
 
 const ServicesList = ({
     services,
-    searchTerm,
-    setSearchTerm,
     onEdit,
     onDelete,
     onAddNew,
     currentPage,
     setCurrentPage,
 }: ServicesListProps) => {
-    const filteredServices = services.filter((s) =>
-        s.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     return (
         <div className="space-y-6">
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <div className="relative w-full sm:w-72">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search services..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none text-slate-200 placeholder-slate-500"
-                    />
+                <div className="flex items-center gap-2">
+                    <div className="p-2 bg-indigo-500/10 rounded-lg">
+                        <Plus size={18} className="text-indigo-400" />
+                    </div>
+                    <h2 className="text-lg font-semibold text-white">Services</h2>
                 </div>
 
                 <div className="flex gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-300 text-sm transition-colors">
-                        <Filter size={16} />
-                        Filter
-                    </button>
                     <button
                         onClick={onAddNew}
                         className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium transition-colors shadow-lg shadow-indigo-500/20"
@@ -71,7 +55,7 @@ const ServicesList = ({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-800">
-                            {filteredServices.map((service) => (
+                            {services?.map((service) => (
                                 <tr key={service.id} className="hover:bg-slate-800/50 transition-colors">
                                     <td className="px-6 py-4 font-medium text-white">{service.title}</td>
                                     <td className="px-6 py-4">
@@ -88,12 +72,30 @@ const ServicesList = ({
                                     </td>
                                     <td className="px-6 py-4 text-xs">
                                         <div className="flex flex-col gap-1">
-                                            <span>
-                                                <span className="text-slate-500">From:</span> {service.availableFrom}
-                                            </span>
-                                            <span>
-                                                <span className="text-slate-500">To:</span> {service.availableTo}
-                                            </span>
+                                            {service.availableFrom && (
+                                                <span>
+                                                    <span className="text-slate-500">From:</span>{" "}
+                                                    <span className="text-slate-300">
+                                                        {new Date(service.availableFrom).toLocaleDateString("en-US", {
+                                                            year: "numeric",
+                                                            month: "short",
+                                                            day: "numeric",
+                                                        })}
+                                                    </span>
+                                                </span>
+                                            )}
+                                            {service.availableTo && (
+                                                <span>
+                                                    <span className="text-slate-500">To:</span>{" "}
+                                                    <span className="text-slate-300">
+                                                        {new Date(service.availableTo).toLocaleDateString("en-US", {
+                                                            year: "numeric",
+                                                            month: "short",
+                                                            day: "numeric",
+                                                        })}
+                                                    </span>
+                                                </span>
+                                            )}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-right">

@@ -1,13 +1,12 @@
-import { Service } from "@prisma/client";
+import { Service, Booking, Prisma } from "@prisma/client";
 import { IUserRepository } from "./interfaces/IUserRepository";
 import { prisma } from "../../config/db";
-import { BadRequestError } from "../../utils/errors";
-import { errorMessages } from "../../utils/messages";
+
 
 export class UserRepository implements IUserRepository {
-  async getServices(filters: any): Promise<Service[]> {
+  async getServices(filters: { search?: string; category?: string; minPrice?: string; maxPrice?: string; location?: string }): Promise<Service[]> {
     const { search, category, minPrice, maxPrice, location } = filters;
-    const query: any = {};
+    const query: Prisma.ServiceWhereInput = {};
 
     if (search) {
       query.OR = [
@@ -33,13 +32,13 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  async createBooking(data: any): Promise<any> {
+  async createBooking(data: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking> {
     return prisma.booking.create({
       data,
     });
   }
 
-  async getUserBookings(userId: string): Promise<any[]> {
+  async getUserBookings(userId: string): Promise<(Booking & { service: Service })[]> {
     return prisma.booking.findMany({
       where: { userId },
       include: { service: true },
@@ -47,14 +46,14 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  async getServiceById(serviceId: string): Promise<any | null> {
+  async getServiceById(serviceId: string): Promise<(Service & { bookings: Booking[] }) | null> {
     return prisma.service.findUnique({
       where: { id: serviceId },
       include: { bookings: true },
     });
   }
 
-  async findOverlappingBookings(serviceId: string, startDate: Date, endDate: Date): Promise<any[]> {
+  async findOverlappingBookings(serviceId: string, startDate: Date, endDate: Date): Promise<Booking[]> {
     return prisma.booking.findMany({
       where: {
         serviceId,

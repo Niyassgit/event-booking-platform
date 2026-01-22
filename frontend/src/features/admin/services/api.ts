@@ -2,8 +2,9 @@ import { api } from "../../../services/api";
 import { AdminEndpoints } from "../../../utils/ApiEndpoints";
 import type { Service } from "../../../types";
 
-export const getAllServices = async () => {
-  const res = await api.get(AdminEndpoints.SERVICES);
+export const getAllServices = async (filters?: Record<string, any>) => {
+  const res = await api.get(AdminEndpoints.SERVICES, { params: filters });
+  console.log(res.data.data);
   return res.data;
 };
 
@@ -27,12 +28,8 @@ export const deleteService = async (serviceId: string) => {
   return res.data;
 };
 
-export const getAllBookings = async (filters: { category?: string; date?: string }) => {
-  const params = new URLSearchParams();
-  if (filters.category && filters.category !== 'All') params.append('category', filters.category);
-  if (filters.date) params.append('date', filters.date);
-
-  const res = await api.get(`${AdminEndpoints.BOOKINGS}?${params.toString()}`);
+export const getAllBookings = async (filters?: Record<string, any>) => {
+  const res = await api.get(AdminEndpoints.BOOKINGS, { params: filters });
   return res.data;
 };
 

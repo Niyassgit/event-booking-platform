@@ -41,7 +41,7 @@ const ServiceCard = ({ service, onBook }: ServiceCardProps) => (
 
             <div className="mt-auto pt-4 border-t border-slate-700/50 flex justify-between items-center text-sm">
                 <div>
-                    <span className="text-emerald-400 font-bold text-lg">${service.price}</span>
+                    <span className="text-emerald-400 font-bold text-lg">₹{service.price}</span>
                     <span className="text-slate-500 text-xs ml-1">/ event</span>
                 </div>
                 <button

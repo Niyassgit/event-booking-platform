@@ -4,7 +4,7 @@ import { env } from "../config/env";
 import { UnauthorizedError } from "../utils/errors";
 import { errorMessages } from "../utils/messages";
 
-// Extend Express Request to include user info
+
 declare global {
   namespace Express {
     interface Request {

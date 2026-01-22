@@ -1,27 +1,37 @@
 import { ServiceResponseDto } from "../dtos/ServiceResponse.dto";
 import { BookingResponseDto } from "../dtos/BookingResponse.dto";
+import { Service, Booking } from "@prisma/client";
 
 export class UserMapper {
-    static toServiceResponse(service: any): ServiceResponseDto {
+    static toServiceResponse(service: Service & { bookings?: Booking[] }): ServiceResponseDto {
         return {
             id: service.id,
             title: service.title,
             description: service.description,
             category: service.category,
-            price: service.pricePerDay || service.price, // Handle potential naming diff
+            price: service.pricePerDay,
             location: service.location,
-            images: service.images || [],
-            availability: service.availability ?? true, // Default to true if not present
+            availability: true,
+            availableFrom: service.availableFrom,
+            availableTo: service.availableTo,
+            contactDetails: service.contactDetails,
+            bookings: service.bookings?.map(booking => ({
+                id: booking.id,
+                startDate: booking.startDate,
+                endDate: booking.endDate,
+                userId: booking.userId,
+                serviceId: booking.serviceId,
+                createdAt: booking.createdAt,
+            })),
         };
     }
 
-    static toBookingResponse(booking: any): BookingResponseDto {
+    static toBookingResponse(booking: Booking & { service?: Service }): BookingResponseDto {
         return {
             id: booking.id,
             userId: booking.userId,
-            serviceId: booking.serviceId,
-            date: booking.date,
-            status: booking.status,
+            date: booking.startDate, // Use booking date (startDate) instead of creation date
+            status: 'confirmed',
             service: booking.service ? UserMapper.toServiceResponse(booking.service) : undefined,
         };
     }

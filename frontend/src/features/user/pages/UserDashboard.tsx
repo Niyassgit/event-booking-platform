@@ -9,7 +9,6 @@ import DashboardNavbar from "../components/DashboardNavbar";
 import ServicesView from "../components/ServicesView";
 import ServiceDetailsModal from "../components/ServiceDetailsModal";
 import toast from "react-hot-toast";
-import Footer from "../../auth/pages/Footer";
 
 const UserDashboard = () => {
     const navigate = useNavigate();
@@ -32,7 +31,6 @@ const UserDashboard = () => {
         navigate("/");
     };
 
-    // Fetch all services once on mount
     useEffect(() => {
         const loadAllServices = async () => {
             try {
@@ -47,7 +45,6 @@ const UserDashboard = () => {
         loadAllServices();
     }, []);
 
-    // Filter services locally whenever filters change
     useEffect(() => {
         let result = allServices;
 

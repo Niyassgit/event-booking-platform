@@ -10,8 +10,36 @@ export class AdminRepository implements IAdminRepository {
     return prisma.user.findUnique({ where: { id: userId } });
   }
 
-  async findAllServices(): Promise<Service[]> {
+  async findAllServices(filters?: Record<string, string | undefined>): Promise<Service[]> {
+    const { category, minPrice, maxPrice, startDate, endDate, searchTerm } = filters || {};
+    const query: any = {};
+
+    if (category && category !== 'All') {
+      query.category = { equals: category, mode: 'insensitive' };
+    }
+
+    if (minPrice || maxPrice) {
+      query.pricePerDay = {};
+      if (minPrice) query.pricePerDay.gte = parseFloat(minPrice);
+      if (maxPrice) query.pricePerDay.lte = parseFloat(maxPrice);
+    }
+
+    if (startDate) {
+      query.availableFrom = { lte: new Date(startDate) };
+    }
+    if (endDate) {
+      query.availableTo = { gte: new Date(endDate) };
+    }
+
+    if (searchTerm) {
+      query.OR = [
+        { title: { contains: searchTerm, mode: 'insensitive' } },
+        { description: { contains: searchTerm, mode: 'insensitive' } },
+      ];
+    }
+
     return prisma.service.findMany({
+      where: query,
       orderBy: { createdAt: 'desc' }
     });
   }
@@ -35,8 +63,8 @@ export class AdminRepository implements IAdminRepository {
     await prisma.service.delete({ where: { id: serviceId } });
   }
 
-  async getAllBookings(filters?: any): Promise<any[]> {
-    const { category, date } = filters || {};
+  async getAllBookings(filters?: Record<string, string | undefined>): Promise<(import("@prisma/client").Booking & { service: import("@prisma/client").Service, user: import("@prisma/client").User })[]> {
+    const { category, minPrice, maxPrice, startDate, endDate, searchTerm } = filters || {};
     const query: any = {};
 
     if (category && category !== 'All') {
@@ -45,15 +73,30 @@ export class AdminRepository implements IAdminRepository {
       };
     }
 
-    if (date) {
-      const startDate = new Date(date);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(date);
-      endDate.setHours(23, 59, 59, 999);
+    if (minPrice || maxPrice) {
+      query.totalPrice = {};
+      if (minPrice) query.totalPrice.gte = parseFloat(minPrice);
+      if (maxPrice) query.totalPrice.lte = parseFloat(maxPrice);
+    }
 
-      query.startDate = {
-        gte: startDate,
-        lte: endDate
+    if (startDate || endDate) {
+      query.startDate = {};
+      if (startDate) {
+        const sDate = new Date(startDate);
+        sDate.setHours(0, 0, 0, 0);
+        query.startDate.gte = sDate;
+      }
+      if (endDate) {
+        const eDate = new Date(endDate);
+        eDate.setHours(23, 59, 59, 999);
+        query.startDate.lte = eDate;
+      }
+    }
+
+    if (searchTerm) {
+      query.service = {
+        ...(query.service || {}),
+        title: { contains: searchTerm, mode: 'insensitive' }
       };
     }
 
@@ -61,7 +104,7 @@ export class AdminRepository implements IAdminRepository {
       where: query,
       include: {
         service: true,
-        user: { select: { name: true, email: true } }
+        user: true
       },
       orderBy: { createdAt: 'desc' }
     });

@@ -1,3 +1,12 @@
+export interface BookingDto {
+    id: string;
+    startDate: Date | string;
+    endDate: Date | string;
+    userId: string;
+    serviceId: string;
+    createdAt: Date | string;
+}
+
 export interface ServiceResponseDto {
     id: string;
     title: string;
@@ -5,6 +14,9 @@ export interface ServiceResponseDto {
     category: string;
     price: number;
     location: string;
-    images: string[];
     availability: boolean;
+    availableFrom?: Date | string;
+    availableTo?: Date | string;
+    contactDetails: string;
+    bookings?: BookingDto[];
 }

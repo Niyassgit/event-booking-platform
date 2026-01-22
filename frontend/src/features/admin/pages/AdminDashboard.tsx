@@ -1,33 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ServicesList from "../components/ServicesList";
 import ServiceModal from "../components/ServiceModal";
+import FilterBar from "../../../components/common/FilterBar";
 import { getAllServices, createService, updateService, deleteService } from "../services/api";
 import type { Service } from "../../../types";
 import toast from "react-hot-toast";
 
+const CATEGORIES = ["venue", "caterer", "dj", "photographer", "decoration"];
+
 const AdminDashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [editingService, setEditingService] = useState<Service | null>(null);
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(false);
+    const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
 
-    // Fetch services on mount
-    useEffect(() => {
-        fetchServices();
-    }, []);
-
-    const fetchServices = async () => {
+    const fetchServices = useCallback(async (filters: Record<string, any> = {}) => {
         try {
             setLoading(true);
-            const response = await getAllServices();
+            const response = await getAllServices(filters);
             if (response.success && response.data) {
-                // Format dates for display
                 const formattedServices = response.data.map((service: any) => ({
                     ...service,
-                    availableFrom: new Date(service.availableFrom).toISOString().split('T')[0],
-                    availableTo: new Date(service.availableTo).toISOString().split('T')[0],
+                    pricePerDay: service.price ?? service.pricePerDay ?? 0,
+                    availableFrom: service.availableFrom
+                        ? new Date(service.availableFrom).toISOString().split('T')[0]
+                        : '',
+                    availableTo: service.availableTo
+                        ? new Date(service.availableTo).toISOString().split('T')[0]
+                        : '',
                 }));
                 setServices(formattedServices);
             }
@@ -36,6 +38,14 @@ const AdminDashboard = () => {
         } finally {
             setLoading(false);
         }
+    }, []);
+
+    useEffect(() => {
+        fetchServices(activeFilters);
+    }, [fetchServices, activeFilters]);
+
+    const handleFilterChange = (filters: any) => {
+        setActiveFilters(filters);
     };
 
     const handleDeleteService = async (id: string) => {
@@ -63,13 +73,17 @@ const AdminDashboard = () => {
     const handleModalSubmit = async (data: Partial<Service>) => {
         try {
             if (editingService) {
-                // Update service
                 const response = await updateService(editingService.id, data);
                 if (response.success && response.data) {
                     const updatedService = {
                         ...response.data,
-                        availableFrom: new Date(response.data.availableFrom).toISOString().split('T')[0],
-                        availableTo: new Date(response.data.availableTo).toISOString().split('T')[0],
+                        pricePerDay: response.data.price ?? response.data.pricePerDay ?? 0,
+                        availableFrom: response.data.availableFrom
+                            ? new Date(response.data.availableFrom).toISOString().split('T')[0]
+                            : '',
+                        availableTo: response.data.availableTo
+                            ? new Date(response.data.availableTo).toISOString().split('T')[0]
+                            : '',
                     };
                     setServices((prev) =>
                         prev.map((s) => (s.id === editingService.id ? updatedService : s))
@@ -77,19 +91,24 @@ const AdminDashboard = () => {
                     toast.success("Service updated successfully");
                 }
             } else {
-                // Create service
                 const response = await createService(data as Omit<Service, "id">);
                 if (response.success && response.data) {
                     const newService = {
                         ...response.data,
-                        availableFrom: new Date(response.data.availableFrom).toISOString().split('T')[0],
-                        availableTo: new Date(response.data.availableTo).toISOString().split('T')[0],
+                        pricePerDay: response.data.price ?? response.data.pricePerDay ?? 0,
+                        availableFrom: response.data.availableFrom
+                            ? new Date(response.data.availableFrom).toISOString().split('T')[0]
+                            : '',
+                        availableTo: response.data.availableTo
+                            ? new Date(response.data.availableTo).toISOString().split('T')[0]
+                            : '',
                     };
                     setServices((prev) => [...prev, newService]);
                     toast.success("Service created successfully");
                 }
             }
             setIsModalOpen(false);
+            fetchServices(activeFilters); // Refresh list to ensure filters are applied correctly
         } catch (error: any) {
             toast.error(error?.response?.data?.message || "Failed to save service");
         }
@@ -97,6 +116,8 @@ const AdminDashboard = () => {
 
     return (
         <div className="p-8">
+            <FilterBar onFilter={handleFilterChange} categories={CATEGORIES} />
+
             {loading ? (
                 <div className="flex items-center justify-center h-64">
                     <div className="text-slate-400">Loading services...</div>
@@ -104,8 +125,6 @@ const AdminDashboard = () => {
             ) : (
                 <ServicesList
                     services={services}
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
                     onEdit={handleEditClick}
                     onDelete={handleDeleteService}
                     onAddNew={handleAddNewClick}

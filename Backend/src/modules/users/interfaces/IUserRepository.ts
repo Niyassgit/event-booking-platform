@@ -1,9 +1,9 @@
 import { Service, Booking } from "@prisma/client";
 
 export interface IUserRepository {
-    getServices(filters: any): Promise<Service[]>;
-    createBooking(data: any): Promise<Booking>;
-    getUserBookings(userId: string): Promise<Booking[]>;
-    getServiceById(serviceId: string): Promise<any | null>; 
+    getServices(filters: { search?: string; category?: string; minPrice?: string; maxPrice?: string; location?: string }): Promise<Service[]>;
+    createBooking(data: Omit<Booking, 'id' | 'createdAt'>): Promise<Booking>;
+    getUserBookings(userId: string): Promise<(Booking & { service: Service })[]>;
+    getServiceById(serviceId: string): Promise<(Service & { bookings: Booking[] }) | null>;
     findOverlappingBookings(serviceId: string, startDate: Date, endDate: Date): Promise<Booking[]>;
 }

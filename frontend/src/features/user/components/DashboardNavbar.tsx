@@ -1,4 +1,4 @@
-import { Star, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 interface DashboardNavbarProps {
   user: { name?: string; role?: string } | null;

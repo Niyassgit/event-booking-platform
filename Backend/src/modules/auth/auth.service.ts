@@ -3,9 +3,11 @@ import jwt from "jsonwebtoken";
 import { IAuthRepository } from "./interfaces/IAuthRepository";
 import { IAuthService } from "./interfaces/IAuthService";
 import { env } from "../../config/env";
-import { errorMessages } from "../../utils/messages";
+import { errorMessages, successMessages } from "../../utils/messages";
 import { BadRequestError } from "../../utils/errors";
 import { LoginUserDTO, RegisterUserDTO } from "./auth.types";
+import { LoginResponseDTO } from "./dtos/LoginResponseDTO";
+import { AuthMapper } from "./mappers/AuthMapper";
 
 export class AuthService implements IAuthService {
   private authRepository: IAuthRepository;
@@ -14,7 +16,7 @@ export class AuthService implements IAuthService {
     this.authRepository = authRepository;
   }
 
-  async register(data: RegisterUserDTO) {
+  async register(data: RegisterUserDTO): Promise<string> {
     const { name, email, password } = data;
     const existingUser = await this.authRepository.findUserByEmail(email);
     if (existingUser) {
@@ -28,13 +30,10 @@ export class AuthService implements IAuthService {
       password: hashedPassword,
     });
 
-    return {
-      id: user.id,
-      email: user.email,
-    };
+    return successMessages.REGISTER_SUCCESSS;
   }
 
-  async login(data: LoginUserDTO) {
+  async login(data: LoginUserDTO): Promise<LoginResponseDTO> {
     const { email, password } = data;
     const user = await this.authRepository.findUserByEmail(email);
 
@@ -51,17 +50,14 @@ export class AuthService implements IAuthService {
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "1d" },
     );
+
+    const mappedUser = AuthMapper.userTODomain(user);
 
     return {
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: mappedUser,
     };
   }
 }

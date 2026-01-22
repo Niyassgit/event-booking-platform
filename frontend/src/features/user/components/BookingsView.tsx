@@ -1,9 +1,9 @@
 import { Clock } from "lucide-react";
 import BookingCard from "./BookingCard";
-import type { Booking } from "../types";
+import type { BookingResponseDto } from "../types";
 
 interface BookingsViewProps {
-    bookings: Booking[];
+    bookings: BookingResponseDto[];
 }
 
 const BookingsView = ({ bookings }: BookingsViewProps) => {
@@ -31,7 +31,11 @@ const BookingsView = ({ bookings }: BookingsViewProps) => {
                     <div className="bg-slate-800 p-4 rounded-xl flex items-center justify-between">
                         <span className="text-slate-400">Total Spent</span>
                         <span className="text-2xl font-bold text-emerald-400">
-                            ${bookings.reduce((acc, curr) => acc + curr.price, 0)}
+                            ₹
+                            {bookings.reduce(
+                              (acc, curr) => acc + (curr.service?.price ?? 0),
+                              0,
+                            )}
                         </span>
                     </div>
                     <div className="h-px bg-slate-700 my-4" />

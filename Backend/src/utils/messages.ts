@@ -14,12 +14,14 @@ export const errorMessages = {
   BOOKING_FAILED: "Booking failed",
   DATE_ALREADY_BOOKED: "Selected dates are already booked",
   DATE_OUT_OF_RANGE: "Selected dates are outside the service availability range",
+  DATE_BEFORE_AVAILABLE:"Booking date is before service availability start date"
 };
 
 export const successMessages = {
   LOGED_IN: "Login successful",
   REGISTER_SUCCESSS: "User registered successfully",
   SERVICE_BOOKED: "Service has been booked successfully",
+  SERVICE_DELETE:"Service deleted successfully",
 };
 
 export const Message = {

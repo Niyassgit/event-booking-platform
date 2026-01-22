@@ -65,7 +65,7 @@ const ServiceFilters = ({
                         onChange={(e) => setFilterPriceRange([0, parseInt(e.target.value)])}
                         className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
                     />
-                    <span className="text-sm font-medium text-white min-w-[3rem]">${filterPriceRange[1]}</span>
+                    <span className="text-sm font-medium text-white min-w-[3rem]">₹{filterPriceRange[1]}</span>
                 </div>
             </div>
         </div>
