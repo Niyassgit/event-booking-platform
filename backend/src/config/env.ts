@@ -15,7 +15,4 @@ export const env = {
   DATABASE_URL: required("DATABASE_URL"),
   ORIGIN: required("ORIGIN"),
   JWT_SECRET: required("JWT_SECRET"),
-  EMAIL_HOST: required("EMAIL_HOST"),
-  EMAIL_USER: required("EMAIL_USER"),
-  EMAIL_PASS: required("EMAIL_PASS"),
 };
