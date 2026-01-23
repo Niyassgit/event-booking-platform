@@ -11,7 +11,7 @@ import { ServiceResponseDto } from "./dtos/ServiceResponse.dto";
 import { BookingResponseDto } from "./dtos/BookingResponse.dto";
 
 export class UserService implements IUserService {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(private userRepository: IUserRepository) { }
 
   async getAllServices(filters: {
     search?: string;
@@ -84,5 +84,10 @@ export class UserService implements IUserService {
   async getUserBookings(userId: string): Promise<BookingResponseDto[]> {
     const bookings = await this.userRepository.getUserBookings(userId);
     return bookings.map((booking) => UserMapper.toBookingResponse(booking));
+  }
+
+  async getServiceMetadata(): Promise<{ maxPrice: number }> {
+    const maxPrice = await this.userRepository.getMaxPrice();
+    return { maxPrice };
   }
 }

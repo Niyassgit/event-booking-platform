@@ -15,15 +15,16 @@ const UserDashboard = () => {
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.auth.user);
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filterCategory, setFilterCategory] = useState("All");
-    const [filterLocation, setFilterLocation] = useState("");
-    const [filterPriceRange, setFilterPriceRange] = useState<[number, number]>([
-        0, 100000,
-    ]);
+    const [activeFilters, setActiveFilters] = useState({
+        searchTerm: "",
+        filterCategory: "All",
+        filterLocation: "",
+        filterPriceRange: [0, 100000] as [number, number]
+    });
 
-    const [allServices, setAllServices] = useState<Service[]>([]);
+    const [maxPriceLimit, setMaxPriceLimit] = useState(100000);
     const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(false);
     const [selectedService, setSelectedService] = useState<Service | null>(null);
 
     const handleLogout = () => {
@@ -32,50 +33,32 @@ const UserDashboard = () => {
     };
 
     useEffect(() => {
-        const loadAllServices = async () => {
+        const loadServices = async () => {
             try {
-                const data = await fetchServices({});
-                setAllServices(data);
+                setLoading(true);
+                const { services: data, maxPrice } = await fetchServices({
+                    search: activeFilters.searchTerm,
+                    category: activeFilters.filterCategory,
+                    location: activeFilters.filterLocation,
+                    minPrice: activeFilters.filterPriceRange[0].toString(),
+                    maxPrice: activeFilters.filterPriceRange[1].toString(),
+                });
                 setServices(data);
+                if (maxPrice > 0) setMaxPriceLimit(maxPrice);
+
             } catch (error) {
                 console.error("Failed to load services", error);
                 toast.error("Failed to load services");
+            } finally {
+                setLoading(false);
             }
         };
-        loadAllServices();
-    }, []);
+        loadServices();
+    }, [activeFilters]);
 
-    useEffect(() => {
-        let result = allServices;
-
-        if (searchTerm) {
-            const lowerTerm = searchTerm.toLowerCase();
-            result = result.filter(
-                (s) =>
-                    s.name.toLowerCase().includes(lowerTerm) ||
-                    s.description.toLowerCase().includes(lowerTerm)
-            );
-        }
-
-        if (filterCategory && filterCategory !== "All") {
-            result = result.filter(
-                (s) => s.category.toLowerCase() === filterCategory.toLowerCase()
-            );
-        }
-
-        if (filterLocation) {
-            const lowerLoc = filterLocation.toLowerCase();
-            result = result.filter((s) => s.location.toLowerCase().includes(lowerLoc));
-        }
-
-        if (filterPriceRange[0] > 0 || filterPriceRange[1] < 100000) {
-            result = result.filter(
-                (s) => s.price >= filterPriceRange[0] && s.price <= filterPriceRange[1]
-            );
-        }
-
-        setServices(result);
-    }, [allServices, searchTerm, filterCategory, filterLocation, filterPriceRange]);
+    const handleApplyFilters = (filters: typeof activeFilters) => {
+        setActiveFilters(filters);
+    };
 
     const handleConfirmBooking = async (service: Service, date: string) => {
         try {
@@ -122,15 +105,16 @@ const UserDashboard = () => {
                 <ServicesView
                     filteredServices={services}
                     onBook={handleBookClick}
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    filterCategory={filterCategory}
-                    setFilterCategory={setFilterCategory}
-                    filterLocation={filterLocation}
-                    setFilterLocation={setFilterLocation}
-                    filterPriceRange={filterPriceRange}
-                    setFilterPriceRange={setFilterPriceRange}
+                    activeFilters={activeFilters}
+                    onApplyFilters={handleApplyFilters}
+                    maxPriceLimit={maxPriceLimit}
                 />
+
+                {loading && (
+                    <div className="flex items-center justify-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+                    </div>
+                )}
             </main>
 
             <ServiceDetailsModal
@@ -139,10 +123,6 @@ const UserDashboard = () => {
                 onClose={() => setSelectedService(null)}
                 onConfirmBooking={handleConfirmBooking}
             />
-
-            {/* <div className="mt-10">
-        <Footer />
-      </div> */}
         </div>
     );
 };

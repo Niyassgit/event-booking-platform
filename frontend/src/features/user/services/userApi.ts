@@ -32,15 +32,16 @@ const getCategoryImage = (category: string): string => {
 
 export const fetchServices = async (
   filters: Record<string, unknown>,
-): Promise<Service[]> => {
+): Promise<{ services: Service[]; maxPrice: number }> => {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value && value !== "All") params.append(key, String(value));
   });
 
   const response = await api.get(`/user/services?${params.toString()}`);
+  const { data, metadata } = response.data;
 
-  return response.data.data.map(
+  const services = data.map(
     (s: {
       id: string;
       title: string;
@@ -69,6 +70,8 @@ export const fetchServices = async (
       ),
     }),
   );
+
+  return { services, maxPrice: metadata?.maxPrice || 100000 };
 };
 
 const getDatesInRange = (startDate: Date, endDate: Date): string[] => {
@@ -144,15 +147,15 @@ export const fetchUserBookings = async (): Promise<BookingResponseDto[]> => {
       status: String(booking?.status ?? ""),
       service: service
         ? {
-            id: String(service?.id ?? service?._id ?? ""),
-            title: String(service?.title ?? service?.name ?? ""),
-            description: String(service?.description ?? ""),
-            category: String(service?.category ?? ""),
-            price: Number(service?.price ?? service?.pricePerDay ?? 0),
-            location: String(service?.location ?? ""),
-            availability: Boolean(service?.availability ?? service?.isAvailable ?? true),
-            image: getCategoryImage(String(service?.category ?? "default")),
-          }
+          id: String(service?.id ?? service?._id ?? ""),
+          title: String(service?.title ?? service?.name ?? ""),
+          description: String(service?.description ?? ""),
+          category: String(service?.category ?? ""),
+          price: Number(service?.price ?? service?.pricePerDay ?? 0),
+          location: String(service?.location ?? ""),
+          availability: Boolean(service?.availability ?? service?.isAvailable ?? true),
+          image: getCategoryImage(String(service?.category ?? "default")),
+        }
         : undefined,
     };
   });

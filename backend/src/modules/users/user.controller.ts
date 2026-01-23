@@ -7,8 +7,11 @@ export class UserController {
 
   async getAllServices(req: Request, res: Response) {
     const filters = req.query as Record<string, string | undefined>;
-    const data = await this.userService.getAllServices(filters);
-    return res.status(HttpStatusCode.OK).json({ success: true, data });
+    const [data, metadata] = await Promise.all([
+      this.userService.getAllServices(filters),
+      this.userService.getServiceMetadata()
+    ]);
+    return res.status(HttpStatusCode.OK).json({ success: true, data, metadata });
   }
 
   async getServiceById(req: Request, res: Response) {

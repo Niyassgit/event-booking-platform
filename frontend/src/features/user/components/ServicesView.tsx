@@ -7,39 +7,34 @@ import type { Service } from "../types";
 interface ServicesViewProps {
   filteredServices: Service[];
   onBook: (service: Service) => void;
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
-  filterCategory: string;
-  setFilterCategory: (category: string) => void;
-  filterLocation: string;
-  setFilterLocation: (location: string) => void;
-  filterPriceRange: [number, number];
-  setFilterPriceRange: (range: [number, number]) => void;
+  activeFilters: {
+    searchTerm: string;
+    filterCategory: string;
+    filterLocation: string;
+    filterPriceRange: [number, number];
+  };
+  onApplyFilters: (filters: {
+    searchTerm: string;
+    filterCategory: string;
+    filterLocation: string;
+    filterPriceRange: [number, number];
+  }) => void;
+  maxPriceLimit: number;
 }
 
 const ServicesView = ({
   filteredServices,
   onBook,
-  searchTerm,
-  setSearchTerm,
-  filterCategory,
-  setFilterCategory,
-  filterLocation,
-  setFilterLocation,
-  filterPriceRange,
-  setFilterPriceRange,
+  activeFilters,
+  onApplyFilters,
+  maxPriceLimit,
 }: ServicesViewProps) => {
   return (
     <div className="space-y-6">
       <ServiceFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        filterCategory={filterCategory}
-        setFilterCategory={setFilterCategory}
-        filterLocation={filterLocation}
-        setFilterLocation={setFilterLocation}
-        filterPriceRange={filterPriceRange}
-        setFilterPriceRange={setFilterPriceRange}
+        initialFilters={activeFilters}
+        onApply={onApplyFilters}
+        maxPriceLimit={maxPriceLimit}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

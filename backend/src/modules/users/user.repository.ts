@@ -77,4 +77,11 @@ export class UserRepository implements IUserRepository {
       },
     });
   }
+
+  async getMaxPrice(): Promise<number> {
+    const result = await prisma.service.aggregate({
+      _max: { pricePerDay: true }
+    });
+    return result._max.pricePerDay || 0;
+  }
 }
