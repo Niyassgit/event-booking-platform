@@ -54,7 +54,14 @@ const FilterBar = ({
                 <h3 className="text-white font-medium">Filter Services</h3>
             </div>
 
-            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${1 + (showCategoryFilter ? 1 : 0) + (showPriceFilter ? 2 : 0) + (showDateFilter ? 2 : 0)
+            <div className={`grid grid-cols-1 md:grid-cols-2 ${(() => {
+                    const count = 1 + (showCategoryFilter ? 1 : 0) + (showPriceFilter ? 2 : 0) + (showDateFilter ? 2 : 0);
+                    if (count >= 6) return "lg:grid-cols-6";
+                    if (count === 5) return "lg:grid-cols-5";
+                    if (count === 4) return "lg:grid-cols-4";
+                    if (count === 3) return "lg:grid-cols-3";
+                    return "lg:grid-cols-2";
+                })()
                 } gap-4`}>
                 {/* Search Term */}
                 <div className="space-y-1.5">

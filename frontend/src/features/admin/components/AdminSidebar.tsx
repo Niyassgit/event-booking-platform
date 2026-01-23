@@ -1,5 +1,5 @@
 import { LayoutDashboard, CalendarDays, Users, LogOut } from "lucide-react";
-import favIcon from "../../../../public/favIcon.png";
+import favIcon from "@/assets/images/favIcon.png";
 
 interface AdminSidebarProps {
   activeTab: "services" | "bookings" | "users";

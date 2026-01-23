@@ -7,7 +7,7 @@ interface DashboardNavbarProps {
 }
 
 import { useNavigate } from "react-router-dom";
-import favIcon from "../../../../public/favIcon.png";
+import favIcon from "@/assets/images/favIcon.png";
 
 const DashboardNavbar = ({
   user,
@@ -37,21 +37,19 @@ const DashboardNavbar = ({
           <div className="hidden md:flex items-center space-x-8">
             <button
               onClick={() => navigate("/user/dashboard")}
-              className={`text-sm font-medium transition-colors ${
-                activePage === "services"
+              className={`text-sm font-medium transition-colors ${activePage === "services"
                   ? "text-indigo-400"
                   : "text-slate-400 hover:text-indigo-300"
-              }`}
+                }`}
             >
               Browse Services
             </button>
             <button
               onClick={() => navigate("/user/bookings")}
-              className={`text-sm font-medium transition-colors ${
-                activePage === "bookings"
+              className={`text-sm font-medium transition-colors ${activePage === "bookings"
                   ? "text-indigo-400"
                   : "text-slate-400 hover:text-indigo-300"
-              }`}
+                }`}
             >
               My Bookings
             </button>
