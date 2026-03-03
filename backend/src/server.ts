@@ -6,7 +6,6 @@ const server = app.listen(env.PORT, () => {
   console.log(`Server is running on port: http://localhost:${env.PORT}`);
 });
 
-// Graceful shutdown
 const gracefulShutdown = async (signal: string) => {
   console.log(`\n${signal} received. Starting graceful shutdown...`);
   
